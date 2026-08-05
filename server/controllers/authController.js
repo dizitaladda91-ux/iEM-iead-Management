@@ -280,7 +280,7 @@ export const refreshToken = asyncHandler(
 export const logout = asyncHandler(
   async (req, res) => {
 
-    const { refreshToken } = req.body;
+    const refreshToken = req.body?.refreshToken;
 
     const client = await pool.connect();
 
@@ -291,7 +291,8 @@ export const logout = asyncHandler(
       const result =
         await logoutUserService(
           refreshToken,
-          client
+          client,
+          req.user?.id
         );
 
       await client.query("COMMIT");

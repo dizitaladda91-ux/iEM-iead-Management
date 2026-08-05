@@ -67,10 +67,15 @@ export const AuthProvider = ({ children }) => {
     if (response?.success) {
       const payload = response.data || {};
       const token = payload.accessToken || payload.token;
+      const refreshToken = payload.refreshToken || null;
       const userData = payload.user || null;
 
       if (token) {
         localStorage.setItem("token", token);
+      }
+
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
       }
 
       if (userData) {
@@ -86,6 +91,8 @@ export const AuthProvider = ({ children }) => {
  const logout = () => {
 
     localStorage.removeItem("token");
+
+    localStorage.removeItem("refreshToken");
 
     localStorage.removeItem("user");
 

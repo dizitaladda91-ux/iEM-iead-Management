@@ -20,7 +20,6 @@ import leadAssignmentRoutes
 from "./routes/leadAssignmentRoutes.js";
 import followupRoutes
 from "./routes/followupRoutes.js";
-import leadTimelineRoutes from "./routes/leadTimeline.routes.js";
 import leadSourceRoutes from "./routes/leadSourceRoutes.js";
 /* Middlewares */
 import { globalLimiter } from "./middleware/rateLimiter.js";
@@ -135,7 +134,6 @@ app.use("/api", healthRoutes);
  * API Routes
  * =====================================================
  */
-app.use("/auth", authRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/campaigns", campaignRoutes);
@@ -145,29 +143,15 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/employee", employeePortalRoutes);
 
+app.use("/api/public", leadCaptureRoutes);
+
 app.use("/api/leads", leadRoutes);
 
-app.use(
-  "/api/public",
-  leadCaptureRoutes
-);
-
-app.use(
-"/api/lead-assignments",
-leadAssignmentRoutes
-);
+app.use("/api/lead-assignments", leadAssignmentRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
 
-app.use(
-    "/api/followups",
-    followupRoutes
-);
-
-app.use(
-  "/api/leads",
-  leadTimelineRoutes
-);
+app.use("/api/followups", followupRoutes);
 
 app.use("/api/lead-sources", leadSourceRoutes);
 

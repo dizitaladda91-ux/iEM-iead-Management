@@ -113,21 +113,10 @@ export const loginUserService = async (
   password
 ) => {
 
-  console.log("================================");
-  console.log("Login Email:", email);
-
   const user =
     await findUserByEmailWithPasswordRepository(
       email
     );
-
-  console.log("User Found:", !!user);
-
-  if (user) {
-    console.log("DB Email:", user.email);
-    console.log("DB Role:", user.role);
-    console.log("DB Password Hash:", user.password);
-  }
 
   if (!user) {
 
@@ -179,6 +168,31 @@ export const loginUserService = async (
   const accessToken = generateAccessToken(user);
 
   const refreshToken = generateRefreshToken(user);
+
+  const expiresAt = new Date(
+    Date.now() + 7 * 24 * 60 * 60 * 1000
+  );
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await createRefreshTokenRepository(
+      client,
+      user.id,
+      refreshToken,
+      expiresAt
+    );
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Failed to store refresh token:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
 
   delete user.password;
 
@@ -530,34 +544,49 @@ export const resetPasswordService = async (
  */
 export const logoutUserService = async (
   refreshToken,
-  client
+  client,
+  userId = null
 ) => {
 
-  const token =
-    await findRefreshTokenRepository(
+  if (refreshToken) {
+    const token =
+      await findRefreshTokenRepository(
+        refreshToken
+      );
+
+    if (!token) {
+      return {
+        success: true,
+        message: "User logged out successfully.",
+      };
+    }
+
+    await deleteRefreshTokenRepository(
+      client,
       refreshToken
     );
 
-  if (!token) {
+    return {
+      success: true,
+      message: "Logout successful.",
+    };
+  }
+
+  if (userId) {
+    await deleteAllRefreshTokensRepository(
+      client,
+      userId
+    );
 
     return {
       success: true,
-      message: "User logged out successfully.",
+      message: "Logout successful.",
     };
-
   }
 
-  await deleteRefreshTokenRepository(
-    client,
-    refreshToken
-  );
-
   return {
-
     success: true,
-
-    message: "User logged out successfully.",
-
+    message: "Logout successful.",
   };
 
 };

@@ -24,6 +24,7 @@ import {
   changePasswordValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
+  refreshTokenValidator,
 } from "../validators/authValidator.js";
 
 const router = express.Router();
@@ -65,6 +66,8 @@ router.post(
 
 router.post(
   "/refresh-token",
+  refreshTokenValidator,
+  validate,
   refreshToken
 );
 

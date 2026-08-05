@@ -99,6 +99,15 @@ const authMiddleware = async (
 
     }
 
+    if (!user.is_active) {
+      return next(
+        new ApiError(
+          HTTP_STATUS.FORBIDDEN,
+          "User account is inactive."
+        )
+      );
+    }
+
     /**
      * ----------------------------------------
      * Attach Safe User Object

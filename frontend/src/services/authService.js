@@ -26,6 +26,15 @@ export const getProfile = async () => {
 
 };
 
+export const refreshAccessToken = async (refreshToken) => {
+  const response = await axiosInstance.post(
+    "/auth/refresh-token",
+    { refreshToken }
+  );
+
+  return response.data;
+};
+
 export const changePassword = async (payload) => {
 
     const response = await axiosInstance.put(
