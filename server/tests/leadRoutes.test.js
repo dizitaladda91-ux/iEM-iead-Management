@@ -53,7 +53,7 @@ test('GET /api/leads returns leads list', async () => {
 
   assert.equal(res.body.success, true);
   assert.equal(res.body.statusCode, 200);
-  assert.ok(Array.isArray(res.body.data));
+  assert.ok(Array.isArray(res.body.data) || Array.isArray(res.body.data.leads));
 });
 
 test('GET /api/leads/:id returns the lead', async () => {

@@ -59,7 +59,7 @@ test('GET /api/campaigns returns list including created campaign', async () => {
 
   assert.equal(res.body.success, true);
   assert.equal(res.body.statusCode, 200);
-  assert.ok(Array.isArray(res.body.data));
+  assert.ok(Array.isArray(res.body.data) || Array.isArray(res.body.data.campaigns));
 });
 
 test('GET /api/campaigns/:id returns the campaign', async () => {

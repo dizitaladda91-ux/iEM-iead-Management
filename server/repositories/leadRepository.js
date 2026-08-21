@@ -144,63 +144,35 @@ $27
     RETURNING *;
   `;
 
- const values = [
-
+  const values = [
     lead.lead_code,
-
-    lead.campaign_id,
-
+    lead.campaign_id || null,
     lead.full_name,
-
     lead.mobile,
-
     lead.alternate_mobile || null,
-
     lead.email || null,
-
     lead.city || null,
-
     lead.state || null,
-
     lead.country || "India",
-
     lead.interested_course || null,
-
     lead.preferred_centre || null,
-
-    lead.source,
-
-    lead.platform || null,
-
+    lead.source || lead.platform || "DIRECT",
+    lead.platform || lead.source || "DIRECT",
     lead.landing_page_url || null,
-
     lead.utm_source || null,
-
     lead.utm_medium || null,
-
     lead.utm_campaign || null,
-
     lead.utm_content || null,
-
     lead.utm_term || null,
-
     lead.external_lead_id || null,
-
     lead.status || "NEW",
-
     lead.priority || "MEDIUM",
-
     lead.assigned_to || null,
-
     lead.remarks || null,
-
     lead.next_followup || null,
-
     lead.captured_at || new Date(),
-
-    lead.created_by,
-
-];
+    lead.created_by || null,
+  ];
   const result =
     await client.query(query, values);
 

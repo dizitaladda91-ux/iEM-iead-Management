@@ -50,19 +50,17 @@ export const createCampaignRepository = async (
   `;
 
   const values = [
-
     campaign.campaign_code,
     campaign.campaign_name,
-    campaign.platform,
-    campaign.source,
-    campaign.budget,
-    campaign.landing_page_url,
-    campaign.description,
-    campaign.start_date,
-    campaign.end_date,
-    campaign.status,
-    campaign.created_by,
-
+    campaign.platform || "OTHER",
+    campaign.source || campaign.platform || "DIRECT",
+    campaign.budget || 0,
+    campaign.landing_page_url || null,
+    campaign.description || null,
+    campaign.start_date || new Date().toISOString().slice(0, 10),
+    campaign.end_date || null,
+    campaign.status || "ACTIVE",
+    campaign.created_by || null,
   ];
 
   const result =
