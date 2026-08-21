@@ -31,6 +31,9 @@ import employeePortalRoutes from "./routes/employeePortal.routes.js";
 
 const app = express();
 
+// Trust reverse proxy on Render / Cloudflare / Vercel
+app.set("trust proxy", 1);
+
 const allowedOrigins = (process.env.CLIENT_URL || "")
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
