@@ -10,23 +10,17 @@ dotenv.config();
  */
 
 const validateEnv = () => {
-
-  /**
-   * -------------------------------------
-   * Default Values
-   * -------------------------------------
-   */
-
   process.env.PORT ||= "5000";
   process.env.NODE_ENV ||= "development";
   process.env.LOG_LEVEL ||= "info";
   process.env.EMPLOYEE_CODE_PREFIX ||= "EMP";
 
-  /**
-   * -------------------------------------
-   * Required Variables
-   * -------------------------------------
-   */
+  if (process.env.NODE_ENV === "test") {
+    process.env.JWT_SECRET ||= "test_jwt_secret_key_1234567890";
+    process.env.JWT_EXPIRES_IN ||= "1d";
+    process.env.JWT_REFRESH_SECRET ||= "test_jwt_refresh_secret_key_1234567890";
+    process.env.JWT_REFRESH_EXPIRES_IN ||= "7d";
+  }
 
   const required = [
     "JWT_SECRET",
@@ -34,12 +28,6 @@ const validateEnv = () => {
     "JWT_REFRESH_SECRET",
     "JWT_REFRESH_EXPIRES_IN",
   ];
-
-  /**
-   * -------------------------------------
-   * Database Validation
-   * -------------------------------------
-   */
 
   if (!process.env.DATABASE_URL) {
 
@@ -56,7 +44,6 @@ const validateEnv = () => {
   if (process.env.NODE_ENV === "production") {
     required.push("CLIENT_URL");
   }
-
   /**
    * -------------------------------------
    * Missing Variables

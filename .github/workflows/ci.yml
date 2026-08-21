@@ -32,6 +32,10 @@ jobs:
       NODE_ENV: test
       DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
       DB_SSL: "false"
+      JWT_SECRET: ci_test_jwt_secret_key_1234567890
+      JWT_EXPIRES_IN: 1d
+      JWT_REFRESH_SECRET: ci_test_jwt_refresh_secret_key_1234567890
+      JWT_REFRESH_EXPIRES_IN: 7d
 
     steps:
       - name: Checkout
