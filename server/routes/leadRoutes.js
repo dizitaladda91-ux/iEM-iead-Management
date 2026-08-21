@@ -82,7 +82,7 @@ router.get(
 router.put(
   "/:id",
   authMiddleware,
-  roleMiddleware(ROLES.ADMIN),
+  roleMiddleware(ROLES.ADMIN, ROLES.COUNSELLOR),
   updateLeadValidator,
   validate,
   updateLead

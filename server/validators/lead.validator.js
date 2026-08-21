@@ -95,36 +95,30 @@ body("captured_at")
 ];
 
 export const updateLeadValidator = [
-body("alternate_mobile").optional(),
-
-body("country").optional(),
-
-body("state").optional(),
-
-body("city").optional(),
-
-body("interested_course").optional(),
-
-body("preferred_centre").optional(),
-
-body("platform").optional(),
-
-body("landing_page_url").optional(),
-
-body("utm_source").optional(),
-
-body("utm_medium").optional(),
-
-body("utm_campaign").optional(),
-
-body("utm_content").optional(),
-
-body("utm_term").optional(),
-
-body("external_lead_id").optional(),
-
-body("captured_at").optional(),
-
+  body("full_name").optional().trim(),
+  body("mobile").optional().trim(),
+  body("alternate_mobile").optional().trim(),
+  body("email").optional().trim(),
+  body("country").optional().trim(),
+  body("state").optional().trim(),
+  body("city").optional().trim(),
+  body("interested_course").optional().trim(),
+  body("preferred_centre").optional().trim(),
+  body("platform").optional().trim(),
+  body("landing_page_url").optional().trim(),
+  body("utm_source").optional().trim(),
+  body("utm_medium").optional().trim(),
+  body("utm_campaign").optional().trim(),
+  body("utm_content").optional().trim(),
+  body("utm_term").optional().trim(),
+  body("external_lead_id").optional().trim(),
+  body("captured_at").optional(),
+  body("priority").optional().trim(),
+  body("status").optional().trim(),
+  body("remarks").optional().trim(),
+  body("feedback").optional(),
+  body("academic_info").optional(),
+  body("next_followup").optional(),
 ];
 
 export const updateLeadStatusValidator = [
@@ -136,35 +130,13 @@ export const updateLeadStatusValidator = [
   body("status")
     .trim()
     .notEmpty()
-    .withMessage("Status is required.")
-    .isIn([
-      "PENDING",
-      "COMPLETED",
-      "REJECTED",
-    ])
-    .withMessage("Invalid lead status."),
+    .withMessage("Status is required."),
 
   body("feedback")
     .optional()
     .trim()
-    .isLength({ max: 1000 })
-    .withMessage("Feedback cannot exceed 1000 characters."),
-
-  body("feedback").custom((value, { req }) => {
-
-    if (
-      req.body.status === "REJECTED" &&
-      (!value || !value.trim())
-    ) {
-      throw new Error(
-        "Feedback is required when rejecting a lead."
-      );
-    }
-
-    return true;
-
-  }),
-
+    .isLength({ max: 5000 })
+    .withMessage("Feedback cannot exceed 5000 characters."),
 ];
 
 export const addLeadNoteValidator = [

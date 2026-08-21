@@ -1,0 +1,62 @@
+.my-admissions-page {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admissions-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.admissions-stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.admissions-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.admissions-stat-icon.green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.admissions-stat-icon.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.admissions-stat-icon.purple {
+  background: #faf5ff;
+  color: #7c3aed;
+}
+
+.admissions-stat-info h4 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.admissions-stat-info p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}

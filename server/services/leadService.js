@@ -286,6 +286,7 @@ export const updateLeadService = async (
         client,
         id,
         {
+          ...lead,
           ...leadData,
           updated_by: currentUser.id,
         }
