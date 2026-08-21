@@ -13,6 +13,7 @@ export const addTimelineEventRepository = async ({
   description = null,
   oldValue = null,
   newValue = null,
+  dbClient = null,
 }) => {
   const query = `
     INSERT INTO lead_timeline
@@ -42,7 +43,8 @@ export const addTimelineEventRepository = async ({
     newValue,
   ];
 
-  const { rows } = await pool.query(query, values);
+  const db = dbClient || pool;
+  const { rows } = await db.query(query, values);
 
   return rows[0];
 };

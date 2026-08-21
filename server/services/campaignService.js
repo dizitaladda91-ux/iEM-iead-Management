@@ -274,6 +274,8 @@ export const updateCampaignService = async (
 
         {
 
+          ...campaign,
+
           ...campaignData,
 
           updated_by: currentUser.id,

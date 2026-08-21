@@ -16,6 +16,7 @@ export const addTimelineEventService = async ({
   description,
   oldValue,
   newValue,
+  dbClient = null,
 }) => {
 
   if (!leadId) {
@@ -38,6 +39,7 @@ export const addTimelineEventService = async ({
     description,
     oldValue,
     newValue,
+    dbClient,
   });
 };
 

@@ -122,6 +122,7 @@ export const createLeadService = async (
   activityType: TIMELINE_ACTIVITY.LEAD_CREATED,
   title: "Lead Created",
   description: `Lead ${lead.full_name} created successfully.`,
+  dbClient: client,
 });
 
 
