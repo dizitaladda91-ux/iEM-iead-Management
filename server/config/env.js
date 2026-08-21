@@ -2,6 +2,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Global sanitization for Windows CRLF and whitespace issues
+for (const key of Object.keys(process.env)) {
+  if (typeof process.env[key] === "string") {
+    process.env[key] = process.env[key].replace(/[\r\n]/g, "").trim();
+  }
+}
+
 /**
  * =====================================================
  * Environment Validation
