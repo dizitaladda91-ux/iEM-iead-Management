@@ -52,90 +52,58 @@ export const createPublicLeadRepository = async (
   client,
   lead
 ) => {
-
   const query = `
-
     INSERT INTO leads (
-
       lead_code,
-
       campaign_id,
-
       full_name,
-
       mobile,
-
       email,
-
       source,
-
+      platform,
+      interested_course,
+      preferred_centre,
       utm_source,
-
       utm_medium,
-
       utm_campaign,
-
       utm_content,
-
       utm_term,
-
       external_lead_id,
-
       captured_at,
-
-      status
-
+      status,
+      priority
     )
-
     VALUES (
-
-      $1,$2,$3,$4,$5,$6,
-      $7,$8,$9,$10,$11,
-      $12,$13,$14
-
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,
+      $10,$11,$12,$13,$14,$15,$16,
+      $17,$18
     )
-
     RETURNING *;
-
   `;
 
   const values = [
-
     lead.lead_code,
-
-    lead.campaign_id,
-
+    lead.campaign_id || null,
     lead.full_name,
-
     lead.mobile,
-
-    lead.email,
-
-    lead.source,
-
-    lead.utm_source,
-
-    lead.utm_medium,
-
-    lead.utm_campaign,
-
-    lead.utm_content,
-
-    lead.utm_term,
-
-    lead.external_lead_id,
-
-    lead.captured_at,
-
-    "NEW"
-
+    lead.email || null,
+    lead.source || "WEBSITE",
+    lead.platform || lead.source || "WEBSITE",
+    lead.interested_course || null,
+    lead.preferred_centre || null,
+    lead.utm_source || null,
+    lead.utm_medium || null,
+    lead.utm_campaign || null,
+    lead.utm_content || null,
+    lead.utm_term || null,
+    lead.external_lead_id || null,
+    lead.captured_at || new Date(),
+    lead.status || "NEW",
+    lead.priority || "LOW",
   ];
 
-  const result =
-    await client.query(query, values);
-
+  const result = await client.query(query, values);
   return result.rows[0];
-
 };
 
 export const createLeadActivityRepository = async (
@@ -178,56 +146,41 @@ export const updateExistingLeadRepository = async (
   id,
   lead
 ) => {
-
   const query = `
-
     UPDATE leads
-
     SET
-
-      campaign_id = $1,
-      source = $2,
-
-      utm_source = $3,
-      utm_medium = $4,
-      utm_campaign = $5,
-      utm_content = $6,
-      utm_term = $7,
-
-      external_lead_id = $8,
-
+      campaign_id = COALESCE($1, campaign_id),
+      source = COALESCE($2, source),
+      interested_course = COALESCE($3, interested_course),
+      preferred_centre = COALESCE($4, preferred_centre),
+      utm_source = $5,
+      utm_medium = $6,
+      utm_campaign = $7,
+      utm_content = $8,
+      utm_term = $9,
+      external_lead_id = $10,
       captured_at = CURRENT_TIMESTAMP,
-
       updated_at = CURRENT_TIMESTAMP
-
-    WHERE id = $9
-
+    WHERE id = $11
     RETURNING *;
-
   `;
 
   const values = [
-
-    lead.campaign_id,
-    lead.source,
-
-    lead.utm_source,
-    lead.utm_medium,
-    lead.utm_campaign,
-    lead.utm_content,
-    lead.utm_term,
-
-    lead.external_lead_id,
-
-    id
-
+    lead.campaign_id || null,
+    lead.source || null,
+    lead.interested_course || null,
+    lead.preferred_centre || null,
+    lead.utm_source || null,
+    lead.utm_medium || null,
+    lead.utm_campaign || null,
+    lead.utm_content || null,
+    lead.utm_term || null,
+    lead.external_lead_id || null,
+    id,
   ];
 
-  const result =
-    await client.query(query, values);
-
+  const result = await client.query(query, values);
   return result.rows[0];
-
 };
 
 export const findLeadByMobileOrEmailRepository = async (

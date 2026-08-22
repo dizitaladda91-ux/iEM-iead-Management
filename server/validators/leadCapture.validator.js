@@ -1,20 +1,19 @@
 import { body } from "express-validator";
 
 export const capturePublicLeadValidator = [
-
   body("full_name")
     .trim()
     .notEmpty()
     .withMessage("Full name is required.")
-    .isLength({ min: 3, max: 100 })
-    .withMessage("Full name must be between 3 and 100 characters."),
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Full name must be between 2 and 100 characters."),
 
   body("mobile")
     .trim()
     .notEmpty()
     .withMessage("Mobile number is required.")
-    .matches(/^[6-9]\d{9}$/)
-    .withMessage("Invalid mobile number."),
+    .matches(/^[0-9+ ]{10,15}$/)
+    .withMessage("Invalid mobile number format."),
 
   body("email")
     .optional({ nullable: true, checkFalsy: true })
@@ -22,26 +21,26 @@ export const capturePublicLeadValidator = [
     .withMessage("Invalid email address.")
     .normalizeEmail(),
 
+  body("interested_course")
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 150 }),
+
+  body("preferred_centre")
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 150 }),
+
   body("campaign_id")
-    .notEmpty()
-    .withMessage("Campaign is required.")
-    .isInt({ min: 1 })
-    .withMessage("Invalid campaign id."),
+    .optional({ nullable: true, checkFalsy: true }),
 
   body("source")
-    .notEmpty()
-    .withMessage("Source is required.")
-    .isIn([
-      "META",
-      "GOOGLE",
-      "WEBSITE",
-      "LANDING_PAGE",
-      "INSTAGRAM",
-      "WHATSAPP",
-      "REFERRAL",
-      "OFFLINE"
-    ])
-    .withMessage("Invalid lead source."),
+    .optional({ nullable: true, checkFalsy: true })
+    .trim(),
+
+  body("platform")
+    .optional({ nullable: true, checkFalsy: true })
+    .trim(),
 
   body("utm_source")
     .optional()
@@ -71,6 +70,5 @@ export const capturePublicLeadValidator = [
   body("external_lead_id")
     .optional()
     .trim()
-    .isLength({ max: 255 })
-
+    .isLength({ max: 255 }),
 ];

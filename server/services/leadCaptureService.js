@@ -36,22 +36,21 @@ export const capturePublicLeadService = async (
     await client.query("BEGIN");
 
     /**
-     * Campaign Validation
+     * Optional Campaign Validation
      */
-
-    const campaign =
-      await findCampaignByIdRepository(
-        leadData.campaign_id
-      );
-
-    if (!campaign) {
-
-      throw new ApiError(
-        404,
-        "Campaign not found."
-      );
-
+    if (leadData.campaign_id) {
+      const campaign = await findCampaignByIdRepository(leadData.campaign_id);
+      if (!campaign) {
+        // If invalid id, keep as null rather than hard failing public capture
+        leadData.campaign_id = null;
+      }
     }
+
+    const payload = {
+      ...leadData,
+      source: leadData.source || "WEBSITE",
+      platform: leadData.platform || leadData.source || "WEBSITE",
+    };
 
     /**
      * Duplicate Check
@@ -60,9 +59,9 @@ export const capturePublicLeadService = async (
     const existingLead =
       await findLeadByMobileOrEmailRepository(
 
-        leadData.mobile,
+        payload.mobile,
 
-        leadData.email
+        payload.email
 
       );
 
@@ -71,87 +70,57 @@ export const capturePublicLeadService = async (
      */
 
     if (existingLead) {
-
       const updatedLead =
         await updateExistingLeadRepository(
-
           client,
-
           existingLead.id,
-
           {
-
-            ...leadData,
-
+            ...existingLead,
+            ...payload,
             updated_by: null,
-
           }
-
         );
 
       await createLeadActivityRepository(
-
         client,
-
         {
-
           lead_id: existingLead.id,
-
           activity: "LEAD_UPDATED",
-
           description:
             "Existing lead updated from public source.",
-
           performed_by: null,
-
         }
-
       );
 
       await client.query("COMMIT");
 
       return {
-
         type: "UPDATED",
-
         lead: updatedLead,
-
       };
-
     }
 
     /**
      * Generate Lead Code
      */
-
     const sequence =
       await getNextLeadCodeRepository(client);
 
     const leadCode =
-
       `${process.env.LEAD_CODE_PREFIX || "LEAD"}${String(sequence).padStart(6, "0")}`;
 
     /**
      * Create Lead
      */
-
     const lead =
       await createPublicLeadRepository(
-
         client,
-
         {
-
-          ...leadData,
-
+          ...payload,
           lead_code: leadCode,
-
           captured_at: new Date(),
-
           created_by: null,
-
         }
-
       );
 
     /**

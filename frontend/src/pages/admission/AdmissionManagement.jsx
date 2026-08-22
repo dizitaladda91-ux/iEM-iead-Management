@@ -11,20 +11,21 @@ import {
   Receipt,
   PlusCircle,
   X,
-  ArrowRight,
   TrendingUp,
-  FileText,
+  Download,
+  Filter,
+  UserCheck,
   PhoneCall,
 } from "lucide-react";
 import {
-  getMyAdmissions,
+  getAdmissions,
   getAdmissionStats,
   addAdmissionPayment,
   getAdmissionDetails,
 } from "../../services/admissionService";
-import "./MyAdmissions.css";
+import "./AdmissionManagement.css";
 
-const MyAdmissions = () => {
+const AdmissionManagement = () => {
   const [admissions, setAdmissions] = useState([]);
   const [stats, setStats] = useState({
     total_admissions: 0,
@@ -37,6 +38,7 @@ const MyAdmissions = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [centreFilter, setCentreFilter] = useState("ALL");
 
   // Modals state
   const [selectedAdmission, setSelectedAdmission] = useState(null);
@@ -59,14 +61,19 @@ const MyAdmissions = () => {
     try {
       setLoading(true);
       const [admRes, statRes] = await Promise.all([
-        getMyAdmissions(search),
+        getAdmissions({
+          search,
+          feeStatus: statusFilter !== "ALL" && statusFilter !== "OVERDUE" ? statusFilter : undefined,
+          isOverdue: statusFilter === "OVERDUE",
+          centre: centreFilter !== "ALL" ? centreFilter : undefined,
+        }),
         getAdmissionStats(),
       ]);
 
       setAdmissions(admRes?.data?.admissions || []);
       setStats(statRes?.data || {});
     } catch (err) {
-      console.error("Error loading admissions:", err);
+      console.error("Error loading admin admissions:", err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +81,7 @@ const MyAdmissions = () => {
 
   useEffect(() => {
     fetchData();
-  }, [search]);
+  }, [search, statusFilter, centreFilter]);
 
   // Open Payment Modal
   const handleOpenPayment = (admission) => {
@@ -109,7 +116,7 @@ const MyAdmissions = () => {
         remarks: paymentForm.remarks,
       });
 
-      alert("Payment recorded successfully!");
+      alert("Fee payment recorded successfully!");
       setIsPaymentModalOpen(false);
       fetchData();
     } catch (err) {
@@ -150,43 +157,96 @@ const MyAdmissions = () => {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
-  // Filter Admissions
-  const filteredAdmissions = admissions.filter((item) => {
-    if (statusFilter === "ALL") return true;
-    if (statusFilter === "OVERDUE") {
-      return (
-        item.fee_status === "OVERDUE" ||
-        (Number(item.pending_fee) > 0 &&
-          item.next_due_date &&
-          new Date(item.next_due_date) < new Date())
-      );
+  // Export CSV
+  const handleExportCSV = () => {
+    if (!admissions.length) {
+      alert("No records to export.");
+      return;
     }
-    return item.fee_status === statusFilter;
-  });
+
+    const headers = [
+      "Student Name",
+      "Mobile",
+      "Email",
+      "Course",
+      "Centre",
+      "Total Fee (INR)",
+      "Paid Fee (INR)",
+      "Pending Fee (INR)",
+      "Fee Status",
+      "Next Due Date",
+      "Counsellor",
+    ];
+
+    const rows = admissions.map((adm) => [
+      `"${adm.student_name}"`,
+      `"${adm.mobile}"`,
+      `"${adm.email || ""}"`,
+      `"${adm.course_name}"`,
+      `"${adm.centre || "Main Campus"}"`,
+      adm.total_fee || 0,
+      adm.paid_fee || 0,
+      adm.pending_fee || 0,
+      adm.fee_status,
+      adm.next_due_date ? String(adm.next_due_date).slice(0, 10) : "",
+      `"${adm.counsellor_name || "Unassigned"}"`,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `IEM_Admissions_Ledger_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div className="my-admissions-container">
+    <div className="adm-admin-container">
       {/* Page Header */}
-      <div className="admissions-header">
+      <div className="adm-admin-header">
         <div>
-          <h1 className="admissions-title">
-            <GraduationCap className="title-icon" /> Admissions & Fee Ledger
+          <h1 className="adm-admin-title">
+            <GraduationCap className="title-icon" /> Admissions & Revenue Management
           </h1>
-          <p className="admissions-subtitle">
-            Manage your enrolled students, record installment fees, and send automated WhatsApp fee reminders.
+          <p className="adm-admin-subtitle">
+            Institute-wide student admissions, course fee collection ledger, and automated WhatsApp fee reminders.
           </p>
         </div>
+
+        <button className="btn-export-csv" onClick={handleExportCSV}>
+          <Download size={16} /> Export CSV Ledger
+        </button>
       </div>
 
-      {/* Stats Cards Ribbon */}
-      <div className="admissions-stats-grid">
+      {/* Financial Analytics Grid */}
+      <div className="adm-stats-grid">
         <div className="adm-stat-card">
           <div className="adm-stat-icon blue">
             <GraduationCap size={22} />
           </div>
           <div>
-            <div className="adm-stat-label">Total Admissions</div>
+            <div className="adm-stat-label">Total Enrolled Students</div>
             <div className="adm-stat-value">{stats.total_admissions || 0}</div>
+          </div>
+        </div>
+
+        <div className="adm-stat-card">
+          <div className="adm-stat-icon purple">
+            <TrendingUp size={22} />
+          </div>
+          <div>
+            <div className="adm-stat-label">Total Course Value</div>
+            <div className="adm-stat-value">
+              ?{Number(stats.total_revenue || 0).toLocaleString("en-IN")}
+            </div>
           </div>
         </div>
 
@@ -195,7 +255,7 @@ const MyAdmissions = () => {
             <IndianRupee size={22} />
           </div>
           <div>
-            <div className="adm-stat-label">Fees Collected</div>
+            <div className="adm-stat-label">Total Fees Collected</div>
             <div className="adm-stat-value green-text">
               ?{Number(stats.total_collected || 0).toLocaleString("en-IN")}
             </div>
@@ -204,10 +264,10 @@ const MyAdmissions = () => {
 
         <div className="adm-stat-card">
           <div className="adm-stat-icon amber">
-            <TrendingUp size={22} />
+            <Clock size={22} />
           </div>
           <div>
-            <div className="adm-stat-label">Pending Dues</div>
+            <div className="adm-stat-label">Outstanding Dues</div>
             <div className="adm-stat-value amber-text">
               ?{Number(stats.total_pending || 0).toLocaleString("en-IN")}
             </div>
@@ -225,13 +285,13 @@ const MyAdmissions = () => {
         </div>
       </div>
 
-      {/* Controls Bar (Search & Filter) */}
+      {/* Filter Bar */}
       <div className="adm-controls-bar">
         <div className="adm-search-box">
           <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Search student, mobile, course..."
+            placeholder="Search by student, mobile, course, counsellor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -242,7 +302,7 @@ const MyAdmissions = () => {
             className={`filter-pill ${statusFilter === "ALL" ? "active" : ""}`}
             onClick={() => setStatusFilter("ALL")}
           >
-            All ({admissions.length})
+            All Students ({admissions.length})
           </button>
           <button
             className={`filter-pill ${statusFilter === "PARTIAL" ? "active" : ""}`}
@@ -260,18 +320,19 @@ const MyAdmissions = () => {
             className={`filter-pill overdue ${statusFilter === "OVERDUE" ? "active" : ""}`}
             onClick={() => setStatusFilter("OVERDUE")}
           >
-            ?? Overdue
+            ?? Overdue Dues
           </button>
         </div>
       </div>
 
-      {/* Admissions Table */}
+      {/* Table */}
       <div className="adm-table-wrapper">
         <table className="adm-table">
           <thead>
             <tr>
               <th>Student Details</th>
               <th>Course & Campus</th>
+              <th>Counsellor</th>
               <th>Fee Breakdown</th>
               <th>Status</th>
               <th>Next Due Date</th>
@@ -281,18 +342,18 @@ const MyAdmissions = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="adm-loading">
-                  Loading admissions & fee ledger...
+                <td colSpan="7" className="adm-loading">
+                  Loading institute admissions & fee ledger...
                 </td>
               </tr>
-            ) : filteredAdmissions.length === 0 ? (
+            ) : admissions.length === 0 ? (
               <tr>
-                <td colSpan="6" className="adm-empty">
-                  No admission records found.
+                <td colSpan="7" className="adm-empty">
+                  No admission records found matching filters.
                 </td>
               </tr>
             ) : (
-              filteredAdmissions.map((adm) => {
+              admissions.map((adm) => {
                 const total = Number(adm.total_fee || 0);
                 const paid = Number(adm.paid_fee || 0);
                 const pending = Number(adm.pending_fee || 0);
@@ -303,7 +364,7 @@ const MyAdmissions = () => {
 
                 return (
                   <tr key={adm.id} className={isOverdue ? "row-overdue" : ""}>
-                    {/* Student Info */}
+                    {/* Student Details */}
                     <td>
                       <div className="student-name">{adm.student_name}</div>
                       <div className="student-contact">
@@ -320,7 +381,15 @@ const MyAdmissions = () => {
                       <div className="centre-tag">{adm.centre || "Main Campus"}</div>
                     </td>
 
-                    {/* Fee Breakdown with Progress Bar */}
+                    {/* Counsellor */}
+                    <td>
+                      <div className="counsellor-tag">
+                        <UserCheck size={13} />
+                        <span>{adm.counsellor_name || "Unassigned"}</span>
+                      </div>
+                    </td>
+
+                    {/* Fee Breakdown */}
                     <td>
                       <div className="fee-numbers">
                         <span className="paid-amount">?{paid.toLocaleString("en-IN")}</span>
@@ -337,7 +406,7 @@ const MyAdmissions = () => {
                         {pending > 0 ? (
                           <span className="pending-text">?{pending.toLocaleString("en-IN")} pending</span>
                         ) : (
-                          <span className="cleared-text">? Cleared</span>
+                          <span className="cleared-text">? 100% Cleared</span>
                         )}
                       </div>
                     </td>
@@ -375,17 +444,17 @@ const MyAdmissions = () => {
                       )}
                     </td>
 
-                    {/* Action Buttons */}
+                    {/* Actions */}
                     <td>
                       <div className="adm-actions">
                         {/* 1. Add Payment */}
                         {pending > 0 && (
                           <button
                             className="btn-adm-pay"
-                            title="Collect Fee / Add Installment"
+                            title="Record Fee Payment"
                             onClick={() => handleOpenPayment(adm)}
                           >
-                            <PlusCircle size={15} /> Collect Fee
+                            <PlusCircle size={15} /> Collect
                           </button>
                         )}
 
@@ -400,10 +469,10 @@ const MyAdmissions = () => {
                           </button>
                         )}
 
-                        {/* 3. View Ledger History */}
+                        {/* 3. View Ledger */}
                         <button
                           className="btn-adm-ledger"
-                          title="View Payment Ledger"
+                          title="View Complete Fee Ledger"
                           onClick={() => handleOpenLedger(adm)}
                         >
                           <Receipt size={15} /> Ledger
@@ -418,9 +487,7 @@ const MyAdmissions = () => {
         </table>
       </div>
 
-      {/* ============================================================
-          PAYMENT COLLECTION MODAL
-          ============================================================ */}
+      {/* Payment Modal */}
       {isPaymentModalOpen && selectedAdmission && (
         <div className="adm-modal-overlay">
           <div className="adm-modal-card">
@@ -434,7 +501,6 @@ const MyAdmissions = () => {
               </button>
             </div>
 
-            {/* Pending summary banner */}
             <div className="modal-fee-banner">
               <div>
                 <span>Total Course Fee</span>
@@ -502,7 +568,6 @@ const MyAdmissions = () => {
                 </div>
               </div>
 
-              {/* Next Due Date if not full amount */}
               {Number(paymentForm.amount || 0) < Number(selectedAdmission.pending_fee || 0) && (
                 <div className="form-group">
                   <label>Next Installment Due Date</label>
@@ -511,7 +576,7 @@ const MyAdmissions = () => {
                     value={paymentForm.next_due_date}
                     onChange={(e) => setPaymentForm({ ...paymentForm, next_due_date: e.target.value })}
                   />
-                  <small className="hint">Set when the remaining balance will be paid.</small>
+                  <small className="hint">Set deadline for remaining balance.</small>
                 </div>
               )}
 
@@ -519,7 +584,7 @@ const MyAdmissions = () => {
                 <label>Remarks / Notes</label>
                 <textarea
                   rows="2"
-                  placeholder="e.g. Second installment paid via PhonePe reference..."
+                  placeholder="e.g. Second installment payment received..."
                   value={paymentForm.remarks}
                   onChange={(e) => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
                 ></textarea>
@@ -542,15 +607,13 @@ const MyAdmissions = () => {
         </div>
       )}
 
-      {/* ============================================================
-          LEDGER & PAYMENT HISTORY DRAWER
-          ============================================================ */}
+      {/* Ledger History Drawer */}
       {isLedgerDrawerOpen && selectedAdmission && (
         <div className="adm-drawer-overlay">
           <div className="adm-drawer">
             <div className="adm-drawer-header">
               <div>
-                <h2>Admission Fee Ledger</h2>
+                <h2>Student Fee Ledger</h2>
                 <p>{selectedAdmission.student_name} � {selectedAdmission.course_name}</p>
               </div>
               <button className="btn-close" onClick={() => setIsLedgerDrawerOpen(false)}>
@@ -559,7 +622,6 @@ const MyAdmissions = () => {
             </div>
 
             <div className="adm-drawer-body">
-              {/* Summary Cards */}
               <div className="drawer-summary-grid">
                 <div className="d-card">
                   <span>Total Course Fee</span>
@@ -575,10 +637,9 @@ const MyAdmissions = () => {
                 </div>
               </div>
 
-              {/* Transactions Timeline */}
               <div className="drawer-section">
                 <h3 className="section-heading">
-                  <Receipt size={16} /> Payment Transactions History
+                  <Receipt size={16} /> All Payment Receipts
                 </h3>
 
                 {!ledgerDetails || !ledgerDetails.payments || ledgerDetails.payments.length === 0 ? (
@@ -621,4 +682,4 @@ const MyAdmissions = () => {
   );
 };
 
-export default MyAdmissions;
+export default AdmissionManagement;
