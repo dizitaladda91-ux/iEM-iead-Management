@@ -28,6 +28,7 @@ import {
   addLeadNote,
 } from "../../../services/leadService";
 import { createFollowup } from "../../../services/followupService";
+import { createAdmission } from "../../../services/admissionService";
 import {
   calculateLeadPriority,
   getPriorityBadgeClass,
@@ -131,8 +132,10 @@ const LeadDetailsDrawer = ({
 
   // Dynamic status fields: ENROLLED
   const [courseEnrolled, setCourseEnrolled] = useState("");
+  const [totalCourseFee, setTotalCourseFee] = useState("");
   const [feePaid, setFeePaid] = useState("");
   const [receiptNumber, setReceiptNumber] = useState("");
+  const [admissionNextDueDate, setAdmissionNextDueDate] = useState("");
 
   // Load Lead details
   const loadLeadData = useCallback(async () => {
@@ -329,6 +332,27 @@ const LeadDetailsDrawer = ({
           await addLeadNote(effectiveId, { note: callNotes });
         } catch (nErr) {
           console.warn("Note add warning:", nErr);
+        }
+      }
+
+      // 4. If Enrolled / Admission Done, create Admission & Fee record in DB
+      if ((status === "ENROLLED" || status === "ADMISSION_DONE") && (Number(totalCourseFee) > 0 || Number(feePaid) > 0)) {
+        try {
+          await createAdmission({
+            lead_id: effectiveId,
+            student_name: fullName,
+            mobile,
+            email: email || null,
+            course_name: courseEnrolled || interestedCourse || "Course Enrollment",
+            centre: preferredCampus || preferredCentre || "Main Campus",
+            total_fee: Number(totalCourseFee || feePaid || 0),
+            paid_fee: Number(feePaid || 0),
+            receipt_number: receiptNumber || `REC-${Date.now().toString().slice(-6)}`,
+            next_due_date: admissionNextDueDate || null,
+            remarks: callNotes || "Converted from Lead Counselling Drawer",
+          });
+        } catch (admErr) {
+          console.warn("Admission record creation warning:", admErr);
         }
       }
 
@@ -882,33 +906,46 @@ const LeadDetailsDrawer = ({
                   {(status === "ENROLLED" || status === "ADMISSION_DONE") && (
                     <div className="dynamic-status-card enrolled">
                       <div className="dynamic-status-title text-emerald-800">
-                        <CheckCircle2 size={18} /> Confirmed Enrollment & Fee Payment
+                        <CheckCircle2 size={18} /> Confirmed Enrollment & Course Fee Breakdown
                       </div>
                       <div className="drawer-grid-3">
                         <div className="drawer-form-group">
-                          <label className="drawer-label">Confirmed Course</label>
+                          <label className="drawer-label">Confirmed Course *</label>
                           <input
                             type="text"
                             className="drawer-input"
-                            placeholder="e.g. B.Tech CSE (AIML)"
+                            placeholder="e.g. Diploma in Event Management"
                             value={courseEnrolled || interestedCourse}
                             onChange={(e) => setCourseEnrolled(e.target.value)}
                           />
                         </div>
 
                         <div className="drawer-form-group">
-                          <label className="drawer-label">Fee Amount Paid (₹)</label>
+                          <label className="drawer-label">Total Course Fee (₹) *</label>
                           <input
                             type="number"
                             className="drawer-input"
-                            placeholder="e.g. 50000"
-                            value={feePaid}
-                            onChange={(e) => setFeePaid(e.target.value)}
+                            placeholder="e.g. 60000"
+                            value={totalCourseFee}
+                            onChange={(e) => setTotalCourseFee(e.target.value)}
                           />
                         </div>
 
                         <div className="drawer-form-group">
-                          <label className="drawer-label">Receipt / Transaction No.</label>
+                          <label className="drawer-label">Initial Fee Paid (₹) *</label>
+                          <input
+                            type="number"
+                            className="drawer-input"
+                            placeholder="e.g. 20000"
+                            value={feePaid}
+                            onChange={(e) => setFeePaid(e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="drawer-grid-2 mt-3">
+                        <div className="drawer-form-group">
+                          <label className="drawer-label">Receipt / Ref Number</label>
                           <input
                             type="text"
                             className="drawer-input"
@@ -917,6 +954,18 @@ const LeadDetailsDrawer = ({
                             onChange={(e) => setReceiptNumber(e.target.value)}
                           />
                         </div>
+
+                        {Number(totalCourseFee || 0) > Number(feePaid || 0) && (
+                          <div className="drawer-form-group">
+                            <label className="drawer-label">Next Installment Due Date</label>
+                            <input
+                              type="date"
+                              className="drawer-input"
+                              value={admissionNextDueDate}
+                              onChange={(e) => setAdmissionNextDueDate(e.target.value)}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
