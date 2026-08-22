@@ -2,7 +2,7 @@ import express from "express";
 import authenticate from "../middleware/authMiddleware.js";
 import authorizeRoles from "../middleware/roleMiddleware.js";
 import validate from "../middleware/validate.js";
-import { ROLES } from "../config/roles.js";
+import ROLES from "../constants/roles.js";
 import {
   createAdmissionValidator,
   addPaymentValidator,
