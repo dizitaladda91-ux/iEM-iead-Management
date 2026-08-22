@@ -3,7 +3,7 @@ import "../../styles/Dashboard/StatsGrid.css";
 import {
   Users,
   GraduationCap,
-  BookOpen,
+  IndianRupee,
   Briefcase,
   Megaphone,
   UserCheck,
@@ -15,7 +15,6 @@ const StatsGrid = ({
 }) => {
 
   const cards = [
-
     {
       title: "Total Leads",
       value: Number(summary.total_leads || 0),
@@ -41,10 +40,10 @@ const StatsGrid = ({
     },
 
     {
-      title: "Students",
-      value: Number(summary.total_students || 0),
-      subtitle: "Enrolled Students",
-      icon: BookOpen,
+      title: "Fees Collected",
+      value: `₹${Number(summary.total_fees_collected || 0).toLocaleString("en-IN")}`,
+      subtitle: "Total Fee Revenue",
+      icon: IndianRupee,
       color: "orange",
     },
 

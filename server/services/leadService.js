@@ -293,22 +293,65 @@ export const updateLeadService = async (
         }
       );
 
+    // 1. Auto-sync Timeline Activity
+    if (leadData.status && leadData.status !== lead.status) {
+      await addTimelineEventService({
+        leadId: id,
+        employeeId: updatedLead.assigned_to || null,
+        activityType: TIMELINE_ACTIVITY.STATUS_CHANGED,
+        title: `Status Changed to ${updatedLead.status}`,
+        description: leadData.remarks || `Status updated from ${lead.status} to ${updatedLead.status}.`,
+        dbClient: client,
+      });
+    }
+
+    // 2. Auto-sync to Admissions Ledger if Enrolled
+    if (["ENROLLED", "ADMISSION_DONE", "ADMITTED"].includes(updatedLead.status)) {
+      const { rows: admRows } = await client.query("SELECT id FROM admissions WHERE lead_id = $1;", [updatedLead.id]);
+      if (admRows.length === 0) {
+        let feedback = {};
+        try {
+          if (typeof updatedLead.feedback === "string") feedback = JSON.parse(updatedLead.feedback);
+          else if (typeof updatedLead.feedback === "object") feedback = updatedLead.feedback || {};
+        } catch {}
+
+        const totalFee = Number(feedback.total_fee || feedback.fee_paid || 0);
+        const paidFee = Number(feedback.fee_paid || 0);
+        const pendingFee = Math.max(0, totalFee - paidFee);
+
+        await client.query(`
+          INSERT INTO admissions (
+            lead_id, student_name, mobile, email, course_name, centre,
+            total_fee, paid_fee, pending_fee, fee_status, next_due_date,
+            assigned_counsellor_id, created_by, remarks
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        `, [
+          updatedLead.id,
+          updatedLead.full_name,
+          updatedLead.mobile,
+          updatedLead.email,
+          feedback.course_enrolled || updatedLead.interested_course || "Enrolled Course",
+          feedback.preferred_campus || updatedLead.preferred_centre || "Main Campus",
+          totalFee,
+          paidFee,
+          pendingFee,
+          pendingFee === 0 && totalFee > 0 ? "FULLY_PAID" : "PARTIAL",
+          feedback.next_due_date || null,
+          updatedLead.assigned_to,
+          currentUser.id,
+          updatedLead.remarks || "Auto-enrolled from Lead status update"
+        ]);
+      }
+    }
+
     auditLogger({
-
       action: "LEAD_UPDATED",
-
       module: "LEAD",
-
       userId: currentUser.id,
-
       role: currentUser.role,
-
       entityId: id,
-
       requestId: req.requestId,
-
       ip: req.ip,
-
     });
 
     await client.query("COMMIT");

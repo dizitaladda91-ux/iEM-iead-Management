@@ -7,41 +7,30 @@ import pool from "../config/db.js";
  */
 
 export const getDashboardSummaryRepository = async () => {
-
   const query = `
-
     SELECT
-
       (SELECT COUNT(*) FROM campaigns WHERE is_deleted = FALSE) AS total_campaigns,
-
       (SELECT COUNT(*) FROM leads WHERE is_deleted = FALSE) AS total_leads,
-
       (
         SELECT COUNT(*)
         FROM leads
         WHERE DATE(created_at) = CURRENT_DATE
           AND is_deleted = FALSE
       ) AS today_leads,
-
       (
         SELECT COUNT(*)
         FROM leads
         WHERE assigned_to IS NOT NULL
           AND is_deleted = FALSE
       ) AS assigned_leads,
-
       (SELECT COUNT(*) FROM employees WHERE is_deleted = FALSE) AS total_employees,
-
-      0 AS total_admissions,
-
-      0 AS total_students;
-
+      (SELECT COUNT(*) FROM admissions) AS total_admissions,
+      (SELECT COALESCE(SUM(paid_fee), 0) FROM admissions) AS total_fees_collected,
+      (SELECT COUNT(*) FROM admissions WHERE fee_status = 'OVERDUE' OR (pending_fee > 0 AND next_due_date < CURRENT_DATE)) AS overdue_admissions;
   `;
 
   const result = await pool.query(query);
-
   return result.rows[0];
-
 };
 
 /**
