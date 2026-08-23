@@ -73,8 +73,9 @@ const EmployeeManagement = () => {
       if (deptFilter) params.department_id = deptFilter;
 
       const res = await getEmployees(params);
-      const data = res.data || res.employees || (Array.isArray(res) ? res : []);
-      setEmployees(data);
+      const raw = res?.data?.employees || res?.data?.data?.employees || res?.data?.data || res?.data || res?.employees || [];
+      const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.employees) ? raw.employees : []);
+      setEmployees(list);
     } catch (err) {
       console.error("Error fetching employees:", err);
     } finally {
@@ -222,7 +223,7 @@ const EmployeeManagement = () => {
           </div>
           <div>
             <div className="stat-label">Total Staff</div>
-            <div className="stat-value">{stats.totalEmployees || employees.length}</div>
+            <div className="stat-value">{stats.totalEmployees || (Array.isArray(employees) ? employees.length : 0)}</div>
           </div>
         </div>
 
@@ -232,7 +233,7 @@ const EmployeeManagement = () => {
           </div>
           <div>
             <div className="stat-label">Active Employees</div>
-            <div className="stat-value">{stats.activeEmployees || employees.filter(e => e.status === "ACTIVE").length}</div>
+            <div className="stat-value">{stats.activeEmployees || (Array.isArray(employees) ? employees.filter(e => e.status === "ACTIVE").length : 0)}</div>
           </div>
         </div>
 
@@ -242,7 +243,7 @@ const EmployeeManagement = () => {
           </div>
           <div>
             <div className="stat-label">Counsellors</div>
-            <div className="stat-value">{stats.counsellors || employees.filter(e => e.role === "COUNSELLOR").length}</div>
+            <div className="stat-value">{stats.counsellors || (Array.isArray(employees) ? employees.filter(e => e.role === "COUNSELLOR").length : 0)}</div>
           </div>
         </div>
 
@@ -252,7 +253,7 @@ const EmployeeManagement = () => {
           </div>
           <div>
             <div className="stat-label">Managers</div>
-            <div className="stat-value">{stats.managers || employees.filter(e => e.role === "MANAGER").length}</div>
+            <div className="stat-value">{stats.managers || (Array.isArray(employees) ? employees.filter(e => e.role === "MANAGER").length : 0)}</div>
           </div>
         </div>
       </div>

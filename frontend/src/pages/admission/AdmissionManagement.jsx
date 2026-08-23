@@ -70,7 +70,9 @@ const AdmissionManagement = () => {
         getAdmissionStats(),
       ]);
 
-      setAdmissions(admRes?.data?.admissions || []);
+      const raw = admRes?.data?.admissions || admRes?.data?.data?.admissions || admRes?.data?.data || admRes?.data || [];
+      const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.admissions) ? raw.admissions : []);
+      setAdmissions(list);
       setStats(statRes?.data || {});
     } catch (err) {
       console.error("Error loading admin admissions:", err);
