@@ -124,9 +124,8 @@ CREATE TABLE IF NOT EXISTS leads (
     created_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_deleted          BOOLEAN NOT NULL DEFAULT FALSE,
-    -- Includes the values accepted by both the lead API and the client constants.
-    CONSTRAINT leads_status_check CHECK (status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'QUALIFIED', 'ADMISSION_DONE', 'LOST', 'PENDING', 'COMPLETED', 'REJECTED', 'new', 'contacted', 'follow_up', 'interested', 'admission_done', 'not_interested', 'lost')),
-    CONSTRAINT leads_priority_check CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'low', 'medium', 'high'))
+    CONSTRAINT leads_status_check CHECK (status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'ENROLLED', 'ADMISSION_DONE', 'ADMITTED', 'LOST', 'REJECTED', 'HOT', 'WARM', 'COLD', 'VISITED', 'WALK_IN', 'NOT_INTERESTED', 'PENDING', 'COMPLETED', 'new', 'contacted', 'follow_up', 'interested', 'admission_done', 'not_interested', 'lost', 'enrolled')),
+    CONSTRAINT leads_priority_check CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT', 'low', 'medium', 'high', 'urgent'))
 );
 
 CREATE TABLE IF NOT EXISTS lead_assignments (
