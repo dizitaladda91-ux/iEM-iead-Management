@@ -649,11 +649,13 @@ const AdmissionManagement = () => {
                     {ledgerDetails.payments.map((p, idx) => (
                       <div key={p.id || idx} className="transaction-item">
                         <div className="tx-header">
-                          <span className="tx-amount">+ ?{Number(p.amount).toLocaleString("en-IN")}</span>
-                          <span className="tx-badge">{p.payment_mode}</span>
+                          <span className="tx-amount">+ ₹{Number(p.amount).toLocaleString("en-IN")}</span>
+                          <span className={`tx-badge ${p.payment_mode === "INITIAL_PAYMENT" ? "initial-token" : ""}`}>
+                            {p.payment_mode === "INITIAL_PAYMENT" ? "🌟 Initial Token Fee" : p.payment_mode}
+                          </span>
                         </div>
                         <div className="tx-meta">
-                          <span>Receipt: <strong>{p.receipt_number || "�"}</strong></span>
+                          <span>Receipt: <strong>{p.receipt_number || "—"}</strong></span>
                           <span>Date: {new Date(p.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>
                         </div>
                         {p.remarks && <div className="tx-remarks">"{p.remarks}"</div>}
