@@ -9,6 +9,7 @@ import {
     deleteEmployeeService,
     restoreEmployeeService,
     getEmployeeStatisticsService,
+    getEmployeePerformanceService,
 } from "../services/employeeService.js";
 import { getMyLeadsService } from "../services/employeeService.js";
 /**
@@ -327,3 +328,23 @@ export const getMyLeadsController = async (
   }
 
 };
+
+/**
+ * =====================================================
+ * Get Employee Performance & Week-Wise Stats Controller
+ * =====================================================
+ */
+export const getEmployeePerformanceController = asyncHandler(
+  async (req, res) => {
+    const { id } = req.params;
+    const performance = await getEmployeePerformanceService(id);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        performance,
+        "Employee performance details fetched successfully."
+      )
+    );
+  }
+);

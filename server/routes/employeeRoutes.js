@@ -8,6 +8,7 @@ import {
     deleteEmployeeController,
     restoreEmployeeController,
     getEmployeeStatisticsController,
+    getEmployeePerformanceController,
 } from "../controllers/employeeController.js";
 
 import authenticate from "../middleware/authMiddleware.js";
@@ -78,6 +79,19 @@ router.get(
     authorize(PERMISSIONS.VIEW_EMPLOYEE),
     validateEmployeeId,
     getEmployeeByIdController
+);
+
+/**
+ * =====================================================
+ * Get Employee Performance & Week-Wise Analytics
+ * =====================================================
+ */
+router.get(
+    "/:id/performance",
+    authenticate,
+    authorize(PERMISSIONS.VIEW_EMPLOYEE),
+    validateEmployeeId,
+    getEmployeePerformanceController
 );
 
 /**

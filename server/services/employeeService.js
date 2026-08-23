@@ -26,7 +26,7 @@ import {
 
     getEmployeesRepository,
     getEmployeeStatisticsRepository,
-
+    getEmployeePerformanceRepository,
 } from "../repositories/employeeRepository.js";
 
 import {
@@ -507,4 +507,31 @@ export const getMyLeadsService = async (
 
   });
 
+};
+
+/**
+ * =====================================================
+ * Get Employee Performance & Week-Wise Stats
+ * =====================================================
+ */
+export const getEmployeePerformanceService = async (employeeId) => {
+  const employee = await findEmployeeByIdRepository(employeeId);
+  if (!employee) {
+    throw new ApiError(404, "Employee not found.");
+  }
+
+  const performanceData = await getEmployeePerformanceRepository(employeeId);
+  return {
+    employee: {
+      id: employee.id,
+      employee_code: employee.employee_code,
+      full_name: employee.full_name,
+      email: employee.email,
+      mobile: employee.mobile,
+      role: employee.role,
+      designation: employee.designation,
+      status: employee.status,
+    },
+    ...performanceData,
+  };
 };

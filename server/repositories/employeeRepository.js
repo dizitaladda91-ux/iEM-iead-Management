@@ -895,3 +895,108 @@ export const getEmployeeStatisticsRepository = async () => {
     return rows[0];
 
 };
+
+/**
+ * =====================================================
+ * Employee Performance & Week-Wise Analytics
+ * =====================================================
+ */
+export const getEmployeePerformanceRepository = async (employeeId) => {
+    // 1. Overall Metrics
+    const summaryQuery = `
+        SELECT
+            COUNT(l.id) AS total_assigned,
+            COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED', 'COMPLETED')) AS completed_leads,
+            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING')) AS pending_leads,
+            COUNT(l.id) FILTER (WHERE l.status IN ('LOST', 'REJECTED', 'NOT_INTERESTED')) AS lost_leads,
+            (SELECT COUNT(*) FROM admissions WHERE assigned_counsellor_id = $1) AS enrolled_admissions,
+            (SELECT COALESCE(SUM(paid_fee), 0) FROM admissions WHERE assigned_counsellor_id = $1) AS total_fees_collected,
+            (SELECT COALESCE(SUM(total_fee), 0) FROM admissions WHERE assigned_counsellor_id = $1) AS total_revenue_value
+        FROM leads l
+        WHERE l.assigned_to = $1 AND l.is_deleted = FALSE;
+    `;
+
+    // 2. Week-Wise Breakdown (Last 8 Weeks)
+    const weekWiseQuery = `
+        WITH weeks AS (
+            SELECT 
+                generate_series(
+                    DATE_TRUNC('week', CURRENT_DATE - INTERVAL '7 weeks'),
+                    DATE_TRUNC('week', CURRENT_DATE),
+                    '1 week'::interval
+                ) AS week_start
+        )
+        SELECT 
+            TO_CHAR(w.week_start, 'YYYY-MM-DD') AS week_start_date,
+            TO_CHAR(w.week_start + INTERVAL '6 days', 'YYYY-MM-DD') AS week_end_date,
+            TO_CHAR(w.week_start, 'DD Mon') || ' - ' || TO_CHAR(w.week_start + INTERVAL '6 days', 'DD Mon YYYY') AS week_label,
+            'Week ' || TO_CHAR(w.week_start, 'IW') AS week_name,
+            COUNT(l.id) AS assigned_count,
+            COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED', 'COMPLETED')) AS completed_count,
+            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING')) AS pending_count,
+            COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED')) AS enrolled_count,
+            COALESCE((
+                SELECT SUM(p.amount)
+                FROM admission_payments p
+                JOIN admissions a ON p.admission_id = a.id
+                WHERE a.assigned_counsellor_id = $1 
+                  AND p.payment_date >= w.week_start::date 
+                  AND p.payment_date <= (w.week_start + INTERVAL '6 days')::date
+            ), 0) AS fees_collected
+        FROM weeks w
+        LEFT JOIN leads l ON l.assigned_to = $1 
+            AND l.is_deleted = FALSE 
+            AND l.created_at >= w.week_start 
+            AND l.created_at < w.week_start + INTERVAL '7 days'
+        GROUP BY w.week_start
+        ORDER BY w.week_start DESC;
+    `;
+
+    // 3. Recent Leads
+    const recentLeadsQuery = `
+        SELECT 
+            id,
+            lead_code,
+            full_name,
+            mobile,
+            email,
+            interested_course,
+            status,
+            priority,
+            created_at,
+            updated_at
+        FROM leads
+        WHERE assigned_to = $1 AND is_deleted = FALSE
+        ORDER BY updated_at DESC
+        LIMIT 10;
+    `;
+
+    const [summaryRes, weekRes, leadsRes] = await Promise.all([
+        pool.query(summaryQuery, [employeeId]),
+        pool.query(weekWiseQuery, [employeeId]),
+        pool.query(recentLeadsQuery, [employeeId]),
+    ]);
+
+    const summary = summaryRes.rows[0] || {};
+    const totalAssigned = parseInt(summary.total_assigned || 0, 10);
+    const completedLeads = parseInt(summary.completed_leads || 0, 10);
+    const pendingLeads = parseInt(summary.pending_leads || 0, 10);
+    const enrolledCount = parseInt(summary.enrolled_admissions || 0, 10);
+
+    const conversionRate = totalAssigned > 0 ? ((enrolledCount / totalAssigned) * 100).toFixed(1) : "0.0";
+
+    return {
+        summary: {
+            total_assigned: totalAssigned,
+            completed_leads: completedLeads,
+            pending_leads: pendingLeads,
+            lost_leads: parseInt(summary.lost_leads || 0, 10),
+            enrolled_count: enrolledCount,
+            total_fees_collected: parseFloat(summary.total_fees_collected || 0),
+            total_revenue_value: parseFloat(summary.total_revenue_value || 0),
+            conversion_rate: conversionRate,
+        },
+        week_wise: weekRes.rows,
+        recent_leads: leadsRes.rows,
+    };
+};
