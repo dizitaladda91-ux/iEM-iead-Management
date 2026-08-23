@@ -70,7 +70,17 @@ const MyFollowups = () => {
       if (search) params.search = search;
 
       const res = await getFollowups(params);
-      const list = res.data || res.followups || (Array.isArray(res) ? res : []);
+      const list = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.followups)
+        ? res.data.followups
+        : Array.isArray(res?.followups)
+        ? res.followups
+        : Array.isArray(res)
+        ? res
+        : [];
       setFollowups(list);
     } catch (err) {
       console.error("Error fetching followups:", err);
@@ -169,8 +179,11 @@ const MyFollowups = () => {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
+  // Safe array fallback
+  const safeFollowups = Array.isArray(followups) ? followups : [];
+
   // Filter items for tabs like OVERDUE
-  const displayedFollowups = followups.filter((item) => {
+  const displayedFollowups = safeFollowups.filter((item) => {
     if (activeTab === "OVERDUE") {
       return (
         item.status === "PENDING" &&
@@ -220,7 +233,7 @@ const MyFollowups = () => {
           </div>
           <div>
             <div className="stat-lbl">Pending Follow-ups</div>
-            <div className="stat-val">{stats.pending || followups.filter((f) => f.status === "PENDING").length}</div>
+            <div className="stat-val">{stats.pending || safeFollowups.filter((f) => f.status === "PENDING").length}</div>
           </div>
         </div>
 
@@ -241,7 +254,7 @@ const MyFollowups = () => {
           <div>
             <div className="stat-lbl">Overdue Follow-ups</div>
             <div className="stat-val">
-              {followups.filter(
+              {safeFollowups.filter(
                 (f) => f.status === "PENDING" && f.next_followup_at && new Date(f.next_followup_at) < new Date()
               ).length}
             </div>
