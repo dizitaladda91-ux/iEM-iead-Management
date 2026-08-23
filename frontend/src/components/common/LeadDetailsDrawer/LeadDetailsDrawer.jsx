@@ -193,8 +193,10 @@ const LeadDetailsDrawer = ({
         setWalkinTime(fb.walkin_time || "");
         setPreferredCampus(fb.preferred_campus || "");
         setCourseEnrolled(fb.course_enrolled || "");
+        setTotalCourseFee(fb.total_fee || "");
         setFeePaid(fb.fee_paid || "");
         setReceiptNumber(fb.receipt_number || "");
+        setAdmissionNextDueDate(fb.next_due_date || "");
       }
 
       if (data.next_followup) {
@@ -264,8 +266,10 @@ const LeadDetailsDrawer = ({
         walkin_time: walkinTime || null,
         preferred_campus: preferredCampus || null,
         course_enrolled: courseEnrolled || null,
+        total_fee: totalCourseFee || feePaid || null,
         fee_paid: feePaid || null,
         receipt_number: receiptNumber || null,
+        next_due_date: admissionNextDueDate || null,
         notes: callNotes || null,
       };
 

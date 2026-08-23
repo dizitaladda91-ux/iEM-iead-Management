@@ -305,42 +305,148 @@ export const updateLeadService = async (
       });
     }
 
+    let feedbackObj = {};
+    try {
+      if (typeof updatedLead.feedback === "string") feedbackObj = JSON.parse(updatedLead.feedback);
+      else if (typeof updatedLead.feedback === "object") feedbackObj = updatedLead.feedback || {};
+    } catch {}
+
     // 2. Auto-sync to Admissions Ledger if Enrolled
     if (["ENROLLED", "ADMISSION_DONE", "ADMITTED"].includes(updatedLead.status)) {
+      const totalFee = Number(feedbackObj.total_fee || feedbackObj.fee_paid || 0);
+      const paidFee = Number(feedbackObj.fee_paid || 0);
+      const pendingFee = Math.max(0, totalFee - paidFee);
+      const feeStatus = pendingFee === 0 && totalFee > 0 ? "FULLY_PAID" : "PARTIAL";
+
       const { rows: admRows } = await client.query("SELECT id FROM admissions WHERE lead_id = $1;", [updatedLead.id]);
       if (admRows.length === 0) {
-        let feedback = {};
-        try {
-          if (typeof updatedLead.feedback === "string") feedback = JSON.parse(updatedLead.feedback);
-          else if (typeof updatedLead.feedback === "object") feedback = updatedLead.feedback || {};
-        } catch {}
-
-        const totalFee = Number(feedback.total_fee || feedback.fee_paid || 0);
-        const paidFee = Number(feedback.fee_paid || 0);
-        const pendingFee = Math.max(0, totalFee - paidFee);
-
-        await client.query(`
+        const { rows: newAdm } = await client.query(`
           INSERT INTO admissions (
             lead_id, student_name, mobile, email, course_name, centre,
             total_fee, paid_fee, pending_fee, fee_status, next_due_date,
             assigned_counsellor_id, created_by, remarks
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+          RETURNING id;
         `, [
           updatedLead.id,
           updatedLead.full_name,
           updatedLead.mobile,
           updatedLead.email,
-          feedback.course_enrolled || updatedLead.interested_course || "Enrolled Course",
-          feedback.preferred_campus || updatedLead.preferred_centre || "Main Campus",
+          feedbackObj.course_enrolled || updatedLead.interested_course || "Enrolled Course",
+          feedbackObj.preferred_campus || updatedLead.preferred_centre || "Main Campus",
           totalFee,
           paidFee,
           pendingFee,
-          pendingFee === 0 && totalFee > 0 ? "FULLY_PAID" : "PARTIAL",
-          feedback.next_due_date || null,
+          feeStatus,
+          feedbackObj.next_due_date || null,
           updatedLead.assigned_to,
           currentUser.id,
           updatedLead.remarks || "Auto-enrolled from Lead status update"
         ]);
+
+        // Record initial payment ledger entry if token fee paid
+        if (paidFee > 0 && newAdm.length > 0) {
+          await client.query(`
+            INSERT INTO admission_payments (
+              admission_id, amount, payment_mode, receipt_number, payment_date, remarks, recorded_by
+            ) VALUES ($1, $2, 'INITIAL_PAYMENT', $3, CURRENT_DATE, 'Initial Token / Admission Fee', $4);
+          `, [
+            newAdm[0].id,
+            paidFee,
+            feedbackObj.receipt_number || `REC-${Date.now().toString().slice(-6)}`,
+            currentUser.id
+          ]);
+        }
+      } else {
+        // Update existing admission record
+        await client.query(`
+          UPDATE admissions
+          SET
+            student_name = $1,
+            mobile = $2,
+            email = $3,
+            course_name = $4,
+            centre = $5,
+            total_fee = CASE WHEN $6 > 0 THEN $6 ELSE total_fee END,
+            paid_fee = CASE WHEN $7 > 0 THEN $7 ELSE paid_fee END,
+            pending_fee = CASE WHEN $6 > 0 THEN GREATEST(0, $6 - CASE WHEN $7 > 0 THEN $7 ELSE paid_fee END) ELSE pending_fee END,
+            fee_status = CASE 
+              WHEN $6 > 0 AND ($6 - CASE WHEN $7 > 0 THEN $7 ELSE paid_fee END) <= 0 THEN 'FULLY_PAID'
+              ELSE fee_status
+            END,
+            next_due_date = COALESCE($8, next_due_date),
+            assigned_counsellor_id = COALESCE($9, assigned_counsellor_id),
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = $10;
+        `, [
+          updatedLead.full_name,
+          updatedLead.mobile,
+          updatedLead.email,
+          feedbackObj.course_enrolled || updatedLead.interested_course || "Enrolled Course",
+          feedbackObj.preferred_campus || updatedLead.preferred_centre || "Main Campus",
+          totalFee,
+          paidFee,
+          feedbackObj.next_due_date || null,
+          updatedLead.assigned_to,
+          admRows[0].id
+        ]);
+      }
+
+      // Automatically complete any pending followups for this enrolled student
+      await client.query(`
+        UPDATE lead_followups
+        SET status = 'COMPLETED', outcome = 'ADMISSION_CONFIRMED', remarks = 'Enrolled into course', updated_at = CURRENT_TIMESTAMP
+        WHERE lead_id = $1 AND status = 'PENDING' AND is_deleted = FALSE;
+      `, [updatedLead.id]);
+    }
+
+    // 3. Auto-sync to Follow-ups Schedule if Followup Date Scheduled or Followup status
+    if (updatedLead.next_followup || ["FOLLOW_UP", "FOLLOW_UP_REQUIRED"].includes(updatedLead.status)) {
+      const nextDate = updatedLead.next_followup || new Date(Date.now() + 86400000);
+      
+      let empId = updatedLead.assigned_to;
+      if (!empId) {
+        const { rows: myEmp } = await client.query("SELECT id FROM employees WHERE user_id = $1;", [currentUser.id]);
+        if (myEmp.length > 0) empId = myEmp[0].id;
+      }
+
+      if (empId) {
+        const { rows: existingFu } = await client.query(
+          "SELECT id FROM lead_followups WHERE lead_id = $1 AND status = 'PENDING' AND is_deleted = FALSE;",
+          [updatedLead.id]
+        );
+
+        if (existingFu.length > 0) {
+          await client.query(`
+            UPDATE lead_followups
+            SET next_followup_at = $1,
+                followup_type = $2,
+                priority = $3,
+                remarks = $4,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $5;
+          `, [
+            nextDate,
+            feedbackObj.followup_mode || "CALL",
+            updatedLead.priority || "MEDIUM",
+            updatedLead.remarks || "Follow-up rescheduled",
+            existingFu[0].id
+          ]);
+        } else {
+          await client.query(`
+            INSERT INTO lead_followups (
+              lead_id, employee_id, followup_type, status, priority, next_followup_at, remarks, created_by
+            ) VALUES ($1, $2, $3, 'PENDING', $4, $5, $6, $7);
+          `, [
+            updatedLead.id,
+            empId,
+            feedbackObj.followup_mode || "CALL",
+            updatedLead.priority || "MEDIUM",
+            nextDate,
+            updatedLead.remarks || "Scheduled from Lead Details",
+            currentUser.id
+          ]);
+        }
       }
     }
 
