@@ -544,7 +544,7 @@ const openAssignModal = () => {
   leadId={selectedLead?.id}
   mode="readOnly"
   onClose={handleCloseDrawer}
-  onUpdated={fetchLeads}
+  onUpdated={loadLeads}
 />
 
 <DeleteLeadModal
