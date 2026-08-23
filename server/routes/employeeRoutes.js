@@ -9,6 +9,7 @@ import {
     restoreEmployeeController,
     getEmployeeStatisticsController,
     getEmployeePerformanceController,
+    getMyPerformanceController,
 } from "../controllers/employeeController.js";
 
 import authenticate from "../middleware/authMiddleware.js";
@@ -132,6 +133,12 @@ router.patch(
     authorize(PERMISSIONS.RESTORE_EMPLOYEE),
     validateEmployeeId,
     restoreEmployeeController
+);
+
+router.get(
+  "/my-performance",
+  authenticate,
+  getMyPerformanceController
 );
 
 router.get(

@@ -7,6 +7,7 @@ import MyLeads from "../pages/employee/MyLeads";
 import LeadDetails from "../pages/employee/LeadDetails";
 import MyFollowups from "../pages/employee/MyFollowups";
 import MyAdmissions from "../pages/employee/MyAdmissions";
+import MyPerformance from "../pages/employee/MyPerformance";
 
 import Profile from "../pages/employee/Profile";
 import Settings from "../pages/employee/Settings";
@@ -40,6 +41,11 @@ const EmployeeRoutes = () => {
         <Route
           path="admissions"
           element={<MyAdmissions />}
+        />
+
+        <Route
+          path="performance"
+          element={<MyPerformance />}
         />
 
 

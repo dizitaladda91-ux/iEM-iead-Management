@@ -82,3 +82,13 @@ export const getEmployeePerformance = async (id) => {
   const response = await axiosInstance.get(`/employees/${id}/performance`);
   return response.data;
 };
+
+/**
+ * ==========================================
+ * Get Logged-In Counsellor Self Performance
+ * ==========================================
+ */
+export const getMyPerformance = async () => {
+  const response = await axiosInstance.get("/employees/my-performance");
+  return response.data;
+};

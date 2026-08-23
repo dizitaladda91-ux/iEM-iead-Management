@@ -348,3 +348,44 @@ export const getEmployeePerformanceController = asyncHandler(
     );
   }
 );
+
+/**
+ * =====================================================
+ * Get Logged-In Counsellor Self-Performance Controller
+ * =====================================================
+ */
+export const getMyPerformanceController = asyncHandler(
+  async (req, res) => {
+    const { default: pool } = await import("../config/db.js");
+    
+    // Find employee linked to user
+    const { rows: empRows } = await pool.query(
+      "SELECT id FROM employees WHERE user_id = $1 AND is_deleted = FALSE;",
+      [req.user.id]
+    );
+
+    let employeeId = empRows.length > 0 ? empRows[0].id : null;
+
+    if (!employeeId) {
+      const { rows: byEmail } = await pool.query(
+        "SELECT id FROM employees WHERE email = $1 AND is_deleted = FALSE;",
+        [req.user.email]
+      );
+      if (byEmail.length > 0) employeeId = byEmail[0].id;
+    }
+
+    if (!employeeId) {
+      throw new ApiError(404, "Employee profile not found for this user.");
+    }
+
+    const performance = await getEmployeePerformanceService(employeeId);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        performance,
+        "My performance data fetched successfully."
+      )
+    );
+  }
+);

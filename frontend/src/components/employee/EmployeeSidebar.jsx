@@ -3,6 +3,7 @@ import {
   Users,
   PhoneCall,
   GraduationCap,
+  TrendingUp,
   User,
   Settings,
   LogOut,
@@ -32,6 +33,11 @@ const menuItems = [
     title: "My Admissions",
     icon: GraduationCap,
     path: "/employee/admissions",
+  },
+  {
+    title: "My Performance",
+    icon: TrendingUp,
+    path: "/employee/performance",
   },
   {
     title: "Profile",
