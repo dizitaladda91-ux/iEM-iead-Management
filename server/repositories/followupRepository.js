@@ -56,12 +56,12 @@ const EMPLOYEE_COLUMNS = `
  */
 
 const LEAD_JOIN = `
-INNER JOIN leads l
+LEFT JOIN leads l
 ON l.id = lf.lead_id
 `;
 
 const EMPLOYEE_JOIN = `
-INNER JOIN employees e
+LEFT JOIN employees e
 ON e.id = lf.employee_id
 `;
 
