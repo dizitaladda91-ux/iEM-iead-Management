@@ -497,7 +497,7 @@ const MyFollowups = () => {
                           <a href={`tel:${leadMobile}`}>{leadMobile}</a>
                         </div>
                       </td>
-                      <td>{course || "—"}</td>
+                      <td>{course || "ï¿½"}</td>
                       <td>
                         <span className="type-badge-pill">{fu.followup_type || "CALL"}</span>
                       </td>
@@ -513,10 +513,10 @@ const MyFollowups = () => {
                                 dateStyle: "medium",
                                 timeStyle: "short",
                               })
-                            : "—"}
+                            : "ï¿½"}
                         </div>
                       </td>
-                      <td className="table-remarks">{fu.remarks || "—"}</td>
+                      <td className="table-remarks">{fu.remarks || "ï¿½"}</td>
                       <td>
                         <div className="table-actions">
                           <a href={`tel:${leadMobile}`} className="btn-table-icon call" title="Call">
