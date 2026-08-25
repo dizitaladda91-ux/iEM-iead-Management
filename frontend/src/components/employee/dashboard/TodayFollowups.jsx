@@ -1,22 +1,20 @@
+import { useNavigate } from "react-router-dom";
 import "./TodayFollowups.css";
 import { PhoneCall, Clock3 } from "lucide-react";
 
 const TodayFollowups = ({ followUps = [] }) => {
+    const navigate = useNavigate();
 
     return (
-
         <div className="followup-card">
-
             <div className="followup-header">
-
                 <h3>Today's Follow-ups</h3>
-
-                <button className="followup-view-btn">
-
+                <button
+                    className="followup-view-btn"
+                    onClick={() => navigate("/employee/followups")}
+                >
                     View All
-
                 </button>
-
             </div>
 
             {
