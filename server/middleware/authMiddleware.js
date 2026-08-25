@@ -1,4 +1,5 @@
 import ApiError from "../utils/ApiError.js";
+import pool from "../config/db.js";
 
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
@@ -110,20 +111,28 @@ const authMiddleware = async (
 
     /**
      * ----------------------------------------
-     * Attach Safe User Object
+     * Attach Safe User Object with employee_id
      * ----------------------------------------
      */
+    let employeeId = null;
+    try {
+      const { rows: empRows } = await pool.query(
+        "SELECT id FROM employees WHERE (user_id = $1 OR email = $2) AND is_deleted = FALSE LIMIT 1;",
+        [user.id, user.email]
+      );
+      if (empRows.length > 0) {
+        employeeId = empRows[0].id;
+      }
+    } catch (empErr) {
+      console.warn("Could not attach employee_id in authMiddleware:", empErr.message);
+    }
 
     req.user = {
-
       id: user.id,
-
+      employee_id: employeeId,
       full_name: user.full_name,
-
       email: user.email,
-
       role: user.role,
-
     };
 
     next();
