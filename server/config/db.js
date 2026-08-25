@@ -19,9 +19,19 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === "true"
     ? { rejectUnauthorized: false }
     : undefined,
-  max: 10,
-  idleTimeoutMillis: 30000,
+  max: parseInt(process.env.DB_POOL_MAX || "10", 10),
+  idleTimeoutMillis: 10000, // 10s: release idle sockets before Neon closes them
   connectionTimeoutMillis: 10000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
+});
+
+/**
+ * Handle idle client errors without crashing the server process.
+ * Neon serverless pooler frequently terminates idle sockets; pg will auto-reconnect on next query.
+ */
+pool.on("error", (err, client) => {
+  console.warn("⚠️ PostgreSQL idle connection notice (auto-recovered):", err.message);
 });
 
 pool
@@ -31,8 +41,7 @@ pool
     client.release();
   })
   .catch((err) => {
-    console.error("❌ PostgreSQL Connection Error:", err.message);
-    process.exit(1);
+    console.warn("⚠️ PostgreSQL initial connect check notice:", err.message);
   });
 
 export async function query(text, params) {
