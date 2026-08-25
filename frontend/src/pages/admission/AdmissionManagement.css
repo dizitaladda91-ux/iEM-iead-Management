@@ -57,7 +57,66 @@
   margin-bottom: 24px;
 }
 
+.adm-stat-card {
+  background: #ffffff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.active-adm-card {
+  cursor: pointer;
+  user-select: none;
+}
+
+.active-adm-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: #93c5fd;
+}
+
+.active-adm-card.selected {
+  border-color: #2563eb;
+  background: #f8faff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.adm-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adm-stat-icon.blue { background: #eff6ff; color: #2563eb; }
 .adm-stat-icon.purple { background: #faf5ff; color: #9333ea; }
+.adm-stat-icon.green { background: #f0fdf4; color: #16a34a; }
+.adm-stat-icon.amber { background: #fefce8; color: #ca8a04; }
+.adm-stat-icon.red { background: #fef2f2; color: #dc2626; }
+
+.adm-stat-label {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.adm-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2px;
+}
+
+.adm-stat-value.green-text { color: #16a34a; }
+.adm-stat-value.amber-text { color: #d97706; }
+.adm-stat-value.red-text { color: #dc2626; }
 
 .counsellor-tag {
   display: inline-flex;

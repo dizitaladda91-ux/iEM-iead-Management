@@ -230,7 +230,13 @@ const AdmissionManagement = () => {
 
       {/* Financial Analytics Grid */}
       <div className="adm-stats-grid">
-        <div className="adm-stat-card">
+        <div
+          className={`adm-stat-card active-adm-card ${statusFilter === "ALL" ? "selected" : ""}`}
+          onClick={() => setStatusFilter("ALL")}
+          role="button"
+          tabIndex={0}
+          title="Click to view all admissions"
+        >
           <div className="adm-stat-icon blue">
             <GraduationCap size={22} />
           </div>
@@ -240,43 +246,67 @@ const AdmissionManagement = () => {
           </div>
         </div>
 
-        <div className="adm-stat-card">
+        <div
+          className="adm-stat-card active-adm-card"
+          onClick={() => setStatusFilter("ALL")}
+          role="button"
+          tabIndex={0}
+          title="Click to view all admissions"
+        >
           <div className="adm-stat-icon purple">
             <TrendingUp size={22} />
           </div>
           <div>
             <div className="adm-stat-label">Total Course Value</div>
             <div className="adm-stat-value">
-              ?{Number(stats.total_revenue || 0).toLocaleString("en-IN")}
+              ₹{Number(stats.total_revenue || 0).toLocaleString("en-IN")}
             </div>
           </div>
         </div>
 
-        <div className="adm-stat-card">
+        <div
+          className={`adm-stat-card active-adm-card ${statusFilter === "FULLY_PAID" ? "selected" : ""}`}
+          onClick={() => setStatusFilter("FULLY_PAID")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Fully Paid admissions"
+        >
           <div className="adm-stat-icon green">
             <IndianRupee size={22} />
           </div>
           <div>
             <div className="adm-stat-label">Total Fees Collected</div>
             <div className="adm-stat-value green-text">
-              ?{Number(stats.total_collected || 0).toLocaleString("en-IN")}
+              ₹{Number(stats.total_collected || 0).toLocaleString("en-IN")}
             </div>
           </div>
         </div>
 
-        <div className="adm-stat-card">
+        <div
+          className={`adm-stat-card active-adm-card ${statusFilter === "PARTIAL" ? "selected" : ""}`}
+          onClick={() => setStatusFilter("PARTIAL")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Partial Dues admissions"
+        >
           <div className="adm-stat-icon amber">
             <Clock size={22} />
           </div>
           <div>
             <div className="adm-stat-label">Outstanding Dues</div>
             <div className="adm-stat-value amber-text">
-              ?{Number(stats.total_pending || 0).toLocaleString("en-IN")}
+              ₹{Number(stats.total_pending || 0).toLocaleString("en-IN")}
             </div>
           </div>
         </div>
 
-        <div className="adm-stat-card">
+        <div
+          className={`adm-stat-card active-adm-card ${statusFilter === "OVERDUE" ? "selected" : ""}`}
+          onClick={() => setStatusFilter("OVERDUE")}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Overdue admissions"
+        >
           <div className="adm-stat-icon red">
             <AlertCircle size={22} />
           </div>

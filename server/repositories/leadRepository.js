@@ -963,13 +963,31 @@ RETURNING *;
  */
 
 export const getLeadStatisticsRepository = async () => {
-
   const query = `
     SELECT
-
       COUNT(*) FILTER (
         WHERE is_deleted = FALSE
       ) AS total_leads,
+
+      COUNT(*) FILTER (
+        WHERE DATE(created_at) = CURRENT_DATE
+        AND is_deleted = FALSE
+      ) AS today_leads,
+
+      COUNT(*) FILTER (
+        WHERE assigned_to IS NOT NULL
+        AND is_deleted = FALSE
+      ) AS assigned_leads,
+
+      COUNT(*) FILTER (
+        WHERE assigned_to IS NULL
+        AND is_deleted = FALSE
+      ) AS unassigned_leads,
+
+      COUNT(*) FILTER (
+        WHERE is_duplicate = TRUE
+        AND is_deleted = FALSE
+      ) AS duplicate_leads,
 
       COUNT(*) FILTER (
         WHERE status = 'NEW'
@@ -982,7 +1000,7 @@ export const getLeadStatisticsRepository = async () => {
       ) AS contacted_leads,
 
       COUNT(*) FILTER (
-        WHERE status = 'FOLLOW_UP'
+        WHERE status IN ('FOLLOW_UP', 'FOLLOW_UP_REQUIRED')
         AND is_deleted = FALSE
       ) AS followup_leads,
 
@@ -992,20 +1010,25 @@ export const getLeadStatisticsRepository = async () => {
       ) AS qualified_leads,
 
       COUNT(*) FILTER (
-        WHERE status = 'ADMISSION_DONE'
+        WHERE status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED')
         AND is_deleted = FALSE
       ) AS admission_done,
 
       COUNT(*) FILTER (
-        WHERE status = 'LOST'
+        WHERE status IN ('LOST', 'REJECTED', 'NOT_INTERESTED')
         AND is_deleted = FALSE
-      ) AS lost_leads
+      ) AS lost_leads,
+
+      CASE 
+        WHEN COUNT(*) FILTER (WHERE is_deleted = FALSE) > 0 
+        THEN ROUND((COUNT(*) FILTER (WHERE status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED') AND is_deleted = FALSE)::decimal / COUNT(*) FILTER (WHERE is_deleted = FALSE)) * 100, 1)
+        ELSE 0 
+      END AS conversion_rate
 
     FROM leads;
   `;
 
   const result = await pool.query(query);
-
   return result.rows[0];
 
 };

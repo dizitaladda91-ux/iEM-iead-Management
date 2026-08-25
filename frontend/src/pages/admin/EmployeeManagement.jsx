@@ -253,7 +253,13 @@ const EmployeeManagement = () => {
 
       {/* Stats Cards */}
       <div className="emp-stats-grid">
-        <div className="emp-stat-card">
+        <div
+          className={`emp-stat-card active-emp-card ${statusFilter === "" && roleFilter === "" ? "selected" : ""}`}
+          onClick={() => { setStatusFilter(""); setRoleFilter(""); }}
+          role="button"
+          tabIndex={0}
+          title="Click to view all staff"
+        >
           <div className="stat-icon-wrapper blue">
             <Users size={22} />
           </div>
@@ -263,33 +269,51 @@ const EmployeeManagement = () => {
           </div>
         </div>
 
-        <div className="emp-stat-card">
+        <div
+          className={`emp-stat-card active-emp-card ${statusFilter === "ACTIVE" ? "selected" : ""}`}
+          onClick={() => { setStatusFilter("ACTIVE"); setRoleFilter(""); }}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Active employees"
+        >
           <div className="stat-icon-wrapper green">
             <UserCheck size={22} />
           </div>
           <div>
             <div className="stat-label">Active Employees</div>
-            <div className="stat-value">{stats.activeEmployees || safeEmployees.filter(e => e.status === "ACTIVE").length}</div>
+            <div className="stat-value">{stats.activeEmployees || (Array.isArray(safeEmployees) ? safeEmployees.filter(e => e.status === "ACTIVE").length : 0)}</div>
           </div>
         </div>
 
-        <div className="emp-stat-card">
+        <div
+          className={`emp-stat-card active-emp-card ${roleFilter === "COUNSELLOR" ? "selected" : ""}`}
+          onClick={() => { setRoleFilter("COUNSELLOR"); setStatusFilter(""); }}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Counsellors"
+        >
           <div className="stat-icon-wrapper purple">
             <Shield size={22} />
           </div>
           <div>
             <div className="stat-label">Counsellors</div>
-            <div className="stat-value">{stats.counsellors || safeEmployees.filter(e => e.role === "COUNSELLOR").length}</div>
+            <div className="stat-value">{stats.counsellors || (Array.isArray(safeEmployees) ? safeEmployees.filter(e => e.role === "COUNSELLOR").length : 0)}</div>
           </div>
         </div>
 
-        <div className="emp-stat-card">
+        <div
+          className={`emp-stat-card active-emp-card ${roleFilter === "MANAGER" ? "selected" : ""}`}
+          onClick={() => { setRoleFilter("MANAGER"); setStatusFilter(""); }}
+          role="button"
+          tabIndex={0}
+          title="Click to filter Managers"
+        >
           <div className="stat-icon-wrapper orange">
             <Briefcase size={22} />
           </div>
           <div>
             <div className="stat-label">Managers</div>
-            <div className="stat-value">{stats.managers || safeEmployees.filter(e => e.role === "MANAGER").length}</div>
+            <div className="stat-value">{stats.managers || (Array.isArray(safeEmployees) ? safeEmployees.filter(e => e.role === "MANAGER").length : 0)}</div>
           </div>
         </div>
       </div>

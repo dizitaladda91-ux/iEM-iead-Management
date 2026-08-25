@@ -143,40 +143,17 @@ setAssignModal(false);
 
 ]);
 
-setLeads(
+      const leadsData = leadResponse?.data?.leads || leadResponse?.data?.data?.leads || leadResponse?.data?.data || [];
+      setLeads(Array.isArray(leadsData) ? leadsData : []);
+      setPagination(leadResponse?.data?.pagination || { page: 1, limit: 10, totalPages: 1, totalRecords: 0 });
 
-    leadResponse.data.leads || []
+      const statsData = statsResponse?.data?.data || statsResponse?.data || {};
+      setStats(statsData);
 
-);
-
-setPagination(
-
-    leadResponse.data.pagination
-
-);
-
-setStats(
-  
-  statsResponse.data.data || {
-
-});
-setEmployees(
-    employeeResponse.data.employees || []
-);
-
-      setLeads(
-        leadResponse.data.leads || []
-      );
-
-      setPagination(
-        leadResponse.data.pagination
-      );
-
-      setStats(
-        statsResponse.data || {}
-      );
-
+      const rawEmp = employeeResponse?.data?.employees || employeeResponse?.data?.data?.employees || employeeResponse?.data?.data || employeeResponse?.data || [];
+      setEmployees(Array.isArray(rawEmp) ? rawEmp : []);
     } catch (error) {
+      console.error(error);
 
       console.error(error);
 

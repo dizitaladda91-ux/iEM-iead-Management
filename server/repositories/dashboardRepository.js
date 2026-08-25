@@ -233,17 +233,17 @@ export const getLeadAnalyticsRepository = async () => {
             ) AS qualified,
 
             COUNT(*) FILTER (
-                WHERE status = 'FOLLOW_UP'
+                WHERE status IN ('FOLLOW_UP', 'FOLLOW_UP_REQUIRED')
                 AND is_deleted = FALSE
             ) AS follow_up,
 
             COUNT(*) FILTER (
-                WHERE status = 'ADMISSION'
+                WHERE status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED')
                 AND is_deleted = FALSE
             ) AS admissions,
 
             COUNT(*) FILTER (
-                WHERE status = 'LOST'
+                WHERE status IN ('LOST', 'REJECTED', 'NOT_INTERESTED')
                 AND is_deleted = FALSE
             ) AS lost,
 

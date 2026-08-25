@@ -22,14 +22,19 @@ box-shadow:0 10px 25px rgba(15,23,42,.06);
 
 border:1px solid #e5e7eb;
 
-transition:.25s;
+transition: all .25s ease;
 
 }
 
-.stat-card:hover{
+.active-stat-card {
+  cursor: pointer;
+  user-select: none;
+}
 
-transform:translateY(-4px);
-
+.active-stat-card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+  border-color: #93c5fd;
 }
 
 .stat-header{

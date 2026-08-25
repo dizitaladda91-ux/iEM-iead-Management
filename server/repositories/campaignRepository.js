@@ -438,11 +438,8 @@ export const restoreCampaignRepository = async (
 };
 
 export const getCampaignStatisticsRepository = async () => {
-
   const query = `
-
     SELECT
-
       COUNT(*) FILTER (
         WHERE is_deleted = FALSE
       ) AS total_campaigns,
@@ -467,14 +464,24 @@ export const getCampaignStatisticsRepository = async () => {
           WHERE is_deleted = FALSE
         ),
         0
-      ) AS total_budget
+      ) AS total_budget,
+
+      (SELECT COUNT(*) FROM leads WHERE campaign_id IS NOT NULL AND is_deleted = FALSE) AS total_leads,
+
+      (
+        CASE 
+          WHEN (SELECT COUNT(*) FROM leads WHERE campaign_id IS NOT NULL AND is_deleted = FALSE) > 0 
+          THEN ROUND(
+            ((SELECT COUNT(*) FROM leads WHERE campaign_id IS NOT NULL AND status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED') AND is_deleted = FALSE)::decimal 
+            / (SELECT COUNT(*) FROM leads WHERE campaign_id IS NOT NULL AND is_deleted = FALSE)) * 100, 1
+          )
+          ELSE 0 
+        END
+      ) AS conversion_rate
 
     FROM campaigns;
-
   `;
 
   const result = await pool.query(query);
-
   return result.rows[0];
-
 };

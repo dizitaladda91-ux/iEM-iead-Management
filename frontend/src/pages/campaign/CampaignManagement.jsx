@@ -89,7 +89,7 @@ const loadCampaigns = useCallback(async () => {
       const statsResponse = await getCampaignStats();
 
       setStats(
-        statsResponse.data || {}
+        statsResponse?.data?.data || statsResponse?.data || {}
       );
 
     } catch (statsError) {

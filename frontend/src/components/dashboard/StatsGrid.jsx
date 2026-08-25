@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import "../../styles/Dashboard/StatsGrid.css";
 
 import {
@@ -7,12 +8,14 @@ import {
   Briefcase,
   Megaphone,
   UserCheck,
+  ArrowUpRight,
 } from "lucide-react";
 
 const StatsGrid = ({
   summary = {},
   loading = false,
 }) => {
+  const navigate = useNavigate();
 
   const cards = [
     {
@@ -21,6 +24,7 @@ const StatsGrid = ({
       subtitle: `${Number(summary.today_leads || 0)} Today`,
       icon: Users,
       color: "blue",
+      path: "/leads",
     },
 
     {
@@ -29,6 +33,7 @@ const StatsGrid = ({
       subtitle: "Running Campaigns",
       icon: Megaphone,
       color: "purple",
+      path: "/campaigns",
     },
 
     {
@@ -37,6 +42,7 @@ const StatsGrid = ({
       subtitle: "Confirmed Admissions",
       icon: GraduationCap,
       color: "green",
+      path: "/admissions",
     },
 
     {
@@ -45,14 +51,16 @@ const StatsGrid = ({
       subtitle: "Total Fee Revenue",
       icon: IndianRupee,
       color: "orange",
+      path: "/admissions",
     },
 
     {
       title: "Employees",
       value: Number(summary.total_employees || 0),
-      subtitle: "CRM Employees",
+      subtitle: "CRM Staff & Counsellors",
       icon: Briefcase,
       color: "red",
+      path: "/employees",
     },
 
     {
@@ -61,6 +69,7 @@ const StatsGrid = ({
       subtitle: "Assigned To Counsellors",
       icon: UserCheck,
       color: "cyan",
+      path: "/leads",
     },
 
   ];
@@ -79,7 +88,11 @@ const StatsGrid = ({
 
             <div
               key={card.title}
-              className={`stat-card ${card.color}`}
+              className={`stat-card ${card.color} active-stat-card`}
+              onClick={() => navigate(card.path)}
+              role="button"
+              tabIndex={0}
+              title={`Click to view ${card.title}`}
             >
 
               <div className="stat-header">
