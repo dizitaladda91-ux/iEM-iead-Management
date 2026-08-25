@@ -44,9 +44,28 @@ export const changePassword = async (payload) => {
 };
 
 export const updateUserProfile = async (payload) => {
-    const response = await axiosInstance.patch(
-        "/auth/profile",
-        payload
-    );
-    return response.data;
+    try {
+        const response = await axiosInstance.patch(
+            "/auth/profile",
+            payload
+        );
+        return response.data;
+    } catch (err) {
+        if (err.response?.status === 404) {
+            try {
+                const altResponse = await axiosInstance.patch(
+                    "/employee/profile",
+                    payload
+                );
+                return altResponse.data;
+            } catch (altErr) {
+                const putResponse = await axiosInstance.put(
+                    "/auth/profile",
+                    payload
+                );
+                return putResponse.data;
+            }
+        }
+        throw err;
+    }
 };

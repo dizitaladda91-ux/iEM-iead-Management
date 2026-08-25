@@ -84,6 +84,12 @@ router.get(
   getProfile
 );
 
+router.get(
+  "/profile",
+  authMiddleware,
+  getProfile
+);
+
 router.patch(
   "/profile",
   authMiddleware,
@@ -91,6 +97,12 @@ router.patch(
 );
 
 router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
+
+router.post(
   "/profile",
   authMiddleware,
   updateProfile

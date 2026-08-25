@@ -7,6 +7,7 @@ import ROLES from "../constants/roles.js";
 
 import { getEmployeeDashboard } from "../controllers/employeePortal.controller.js";
 import { getMyLeadsController, getMyPerformanceController } from "../controllers/employeeController.js";
+import { getProfile, updateProfile } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -38,6 +39,24 @@ router.get(
     ROLES.COUNSELLOR
   ),
   getMyPerformanceController
+);
+
+router.get(
+  "/profile",
+  authMiddleware,
+  getProfile
+);
+
+router.patch(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
+
+router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
 );
 
 export default router;
