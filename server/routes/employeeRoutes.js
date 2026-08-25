@@ -71,6 +71,23 @@ router.get(
 
 /**
  * =====================================================
+ * Counsellor Self Routes (Must be before /:id)
+ * =====================================================
+ */
+router.get(
+    "/my-performance",
+    authenticate,
+    getMyPerformanceController
+);
+
+router.get(
+    "/my-leads",
+    authenticate,
+    getMyLeadsController
+);
+
+/**
+ * =====================================================
  * Get Employee By ID
  * =====================================================
  */
@@ -84,7 +101,7 @@ router.get(
 
 /**
  * =====================================================
- * Get Employee Performance & Week-Wise Analytics
+ * Get Employee Performance & Week-Wise Analytics (Admin)
  * =====================================================
  */
 router.get(
@@ -133,18 +150,6 @@ router.patch(
     authorize(PERMISSIONS.RESTORE_EMPLOYEE),
     validateEmployeeId,
     restoreEmployeeController
-);
-
-router.get(
-  "/my-performance",
-  authenticate,
-  getMyPerformanceController
-);
-
-router.get(
-  "/my-leads",
-  authenticate,
-  getMyLeadsController
 );
 
 export default router;

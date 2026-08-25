@@ -89,6 +89,11 @@ export const getEmployeePerformance = async (id) => {
  * ==========================================
  */
 export const getMyPerformance = async () => {
-  const response = await axiosInstance.get("/employees/my-performance");
-  return response.data;
+  try {
+    const response = await axiosInstance.get("/employees/my-performance");
+    return response.data;
+  } catch (err) {
+    const fallbackResponse = await axiosInstance.get("/employee/performance");
+    return fallbackResponse.data;
+  }
 };
