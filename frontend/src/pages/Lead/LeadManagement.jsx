@@ -217,20 +217,25 @@ setAssignModal(false);
   =====================================
   */
 
+  const handleCardFilterClick = (cardFilter) => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    setFilters((prev) => ({
+      ...prev,
+      ...cardFilter,
+    }));
+  };
+
   const handleResetFilters = () => {
-
     setFilters({
-
       search: "",
-
       status: "",
-
       source: "",
-
       assigned_to: "",
-
+      course: "",
+      centre: "",
+      priority: "",
+      date_range: "",
     });
-
   };
 
   /*
@@ -441,11 +446,10 @@ const openAssignModal = () => {
       />
 
       <LeadStats
-
         loading={loading}
-
         stats={stats}
-
+        activeFilter={filters}
+        onCardClick={handleCardFilterClick}
       />
 
       <LeadFilters
