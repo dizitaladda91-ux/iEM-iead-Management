@@ -6,6 +6,7 @@ import {
   register,
   login,
   getProfile,
+  updateProfile,
   changePassword,
   forgotPassword,
   resetPassword,
@@ -81,6 +82,18 @@ router.get(
   "/me",
   authMiddleware,
   getProfile
+);
+
+router.patch(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
+
+router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
 );
 
 router.patch(

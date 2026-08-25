@@ -36,15 +36,17 @@ export const refreshAccessToken = async (refreshToken) => {
 };
 
 export const changePassword = async (payload) => {
-
     const response = await axiosInstance.put(
-
         "/auth/change-password",
-
         payload
-
     );
-
     return response.data;
+};
 
+export const updateUserProfile = async (payload) => {
+    const response = await axiosInstance.patch(
+        "/auth/profile",
+        payload
+    );
+    return response.data;
 };

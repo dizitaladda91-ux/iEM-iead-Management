@@ -210,39 +210,122 @@ export const loginUserService = async (
 export const getProfileService = async (
   userId
 ) => {
-
   const user =
     await findUserByIdRepository(userId);
 
   if (!user) {
-
     throw new ApiError(
       404,
       "User not found."
     );
-
   }
 
   if (user.is_deleted) {
-
     throw new ApiError(
       403,
       "User account has been deleted."
     );
-
   }
 
   if (!user.is_active) {
-
     throw new ApiError(
       403,
       "User account is inactive."
     );
+  }
 
+  delete user.password;
+
+  // Enrich with employee profile details if available
+  try {
+    const { rows } = await pool.query(
+      "SELECT id AS employee_id, employee_code, mobile, designation, department_id, profile_image, address, emergency_contact, emergency_contact_name, joining_date FROM employees WHERE (user_id = $1 OR email = $2) AND is_deleted = FALSE LIMIT 1;",
+      [user.id, user.email]
+    );
+    if (rows.length > 0) {
+      return {
+        ...user,
+        ...rows[0],
+      };
+    }
+  } catch (err) {
+    console.warn("Could not enrich employee profile:", err.message);
   }
 
   return user;
+};
 
+/**
+ * =====================================================
+ * Update Profile & Photo
+ * =====================================================
+ */
+export const updateProfileService = async (
+  userId,
+  payload
+) => {
+  const {
+    profile_image,
+    full_name,
+    mobile,
+    address,
+    emergency_contact,
+    emergency_contact_name,
+  } = payload;
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    if (full_name) {
+      await client.query(
+        "UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2;",
+        [full_name, userId]
+      );
+    }
+
+    const { rows: empRows } = await client.query(
+      `UPDATE employees 
+       SET 
+         profile_image = COALESCE($1, profile_image),
+         full_name = COALESCE($2, full_name),
+         mobile = COALESCE($3, mobile),
+         address = COALESCE($4, address),
+         emergency_contact = COALESCE($5, emergency_contact),
+         emergency_contact_name = COALESCE($6, emergency_contact_name),
+         updated_at = NOW()
+       WHERE (user_id = $7 OR email = (SELECT email FROM users WHERE id = $7))
+       RETURNING *;`,
+      [
+        profile_image !== undefined ? profile_image : null,
+        full_name || null,
+        mobile || null,
+        address || null,
+        emergency_contact || null,
+        emergency_contact_name || null,
+        userId,
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    const updatedUser = await findUserByIdRepository(userId);
+    delete updatedUser.password;
+    const employee = empRows[0] || {};
+
+    return {
+      ...updatedUser,
+      profile_image: employee.profile_image || profile_image || null,
+      mobile: employee.mobile || updatedUser.mobile || null,
+      employee_code: employee.employee_code || null,
+      designation: employee.designation || null,
+    };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 /**

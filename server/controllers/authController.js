@@ -8,6 +8,7 @@ import {
 
 import {
   getProfileService,
+  updateProfileService,
   changePasswordService,
 } from "../services/authService.js";
 
@@ -97,15 +98,35 @@ export const getProfile = asyncHandler(
       );
 
     return res.status(200).json(
-
       new ApiResponse(
         200,
         user,
         "Profile fetched successfully."
       )
-
     );
+  }
+);
 
+/**
+ * =====================================================
+ * Update Logged In User Profile & Photo
+ * =====================================================
+ */
+export const updateProfile = asyncHandler(
+  async (req, res) => {
+    const updatedUser =
+      await updateProfileService(
+        req.user.id,
+        req.body
+      );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        updatedUser,
+        "Profile updated successfully."
+      )
+    );
   }
 );
 

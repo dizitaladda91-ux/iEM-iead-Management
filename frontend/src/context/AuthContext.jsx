@@ -99,6 +99,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
 
 };
+
+  const updateUser = (updatedData) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedData };
+      try {
+        localStorage.setItem("user", JSON.stringify(merged));
+      } catch {}
+      return merged;
+    });
+  };
+
   return (
 
     <AuthContext.Provider
@@ -107,6 +118,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        updateUser,
       }}
     >
 
