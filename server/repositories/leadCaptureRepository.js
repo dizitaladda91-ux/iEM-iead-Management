@@ -110,35 +110,28 @@ export const createLeadActivityRepository = async (
   client,
   activity
 ) => {
+  try {
+    const query = `
+      INSERT INTO lead_activity_logs (
+        lead_id,
+        activity,
+        description,
+        performed_by
+      )
+      VALUES (
+        $1,$2,$3,$4
+      );
+    `;
 
-  const query = `
-
-    INSERT INTO lead_activity_logs (
-
-      lead_id,
-      activity,
-      description,
-      performed_by
-
-    )
-
-    VALUES (
-
-      $1,$2,$3,$4
-
-    );
-
-  `;
-
-  await client.query(query, [
-
-    activity.lead_id,
-    activity.activity,
-    activity.description,
-    activity.performed_by
-
-  ]);
-
+    await client.query(query, [
+      activity.lead_id,
+      activity.activity,
+      activity.description,
+      activity.performed_by || null,
+    ]);
+  } catch (err) {
+    console.warn("Activity log notice:", err.message);
+  }
 };
 
 export const updateExistingLeadRepository = async (
