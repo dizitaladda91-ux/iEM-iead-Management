@@ -307,9 +307,20 @@ export const updateLeadService = async (
 
     let feedbackObj = {};
     try {
-      if (typeof updatedLead.feedback === "string") feedbackObj = JSON.parse(updatedLead.feedback);
-      else if (typeof updatedLead.feedback === "object") feedbackObj = updatedLead.feedback || {};
+      const raw = updatedLead.feedback;
+      if (typeof raw === "string") {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          feedbackObj = parsed;
+        }
+      } else if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+        feedbackObj = raw;
+      }
     } catch {}
+
+    if (!feedbackObj || typeof feedbackObj !== "object" || Array.isArray(feedbackObj)) {
+      feedbackObj = {};
+    }
 
     // 2. Auto-sync to Admissions Ledger if Enrolled
     if (["ENROLLED", "ADMISSION_DONE", "ADMITTED"].includes(updatedLead.status)) {

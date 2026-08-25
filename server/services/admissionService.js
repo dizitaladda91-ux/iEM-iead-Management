@@ -230,9 +230,21 @@ export const addAdmissionPaymentService = async (admissionId, paymentData, curre
       if (lRows.length > 0) {
         let fb = {};
         try {
-          if (typeof lRows[0].feedback === "string") fb = JSON.parse(lRows[0].feedback);
-          else if (typeof lRows[0].feedback === "object") fb = lRows[0].feedback || {};
+          const raw = lRows[0].feedback;
+          if (typeof raw === "string") {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              fb = parsed;
+            }
+          } else if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+            fb = raw;
+          }
         } catch {}
+
+        if (!fb || typeof fb !== "object" || Array.isArray(fb)) {
+          fb = {};
+        }
+
         fb.fee_paid = newPaid;
         fb.total_fee = totalFee;
         fb.next_due_date = newPending > 0 ? (paymentData.next_due_date || admission.next_due_date) : null;
