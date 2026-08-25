@@ -21,13 +21,13 @@ export const getDashboardSummaryRepository = async (userId) => {
 
       COUNT(*) FILTER (
         WHERE assigned_to = $1
-        AND status = 'QUALIFIED'
+        AND status IN ('INTERESTED', 'QUALIFIED')
         AND is_deleted = FALSE
       ) AS interested_leads,
 
       COUNT(*) FILTER (
         WHERE assigned_to = $1
-        AND status = 'ADMISSION'
+        AND status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED')
         AND is_deleted = FALSE
       ) AS admissions
 

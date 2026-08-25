@@ -8,29 +8,57 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 const STATUS_CONFIG = {
-  NEW: {
-    label: "New",
+  INTERESTED: {
+    label: "Interested",
     className: "bg-blue-100 text-blue-700 border-blue-200",
   },
-  CONTACTED: {
-    label: "Contacted",
-    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  },
   FOLLOW_UP: {
-    label: "Follow Up",
-    className: "bg-orange-100 text-orange-700 border-orange-200",
+    label: "Follow-up",
+    className: "bg-amber-100 text-amber-700 border-amber-200",
   },
-  QUALIFIED: {
-    label: "Qualified",
+  FOLLOW_UP_REQUIRED: {
+    label: "Follow-up",
+    className: "bg-amber-100 text-amber-700 border-amber-200",
+  },
+  VISITED: {
+    label: "Visited",
+    className: "bg-purple-100 text-purple-700 border-purple-200",
+  },
+  WALKED_IN: {
+    label: "Visited",
+    className: "bg-purple-100 text-purple-700 border-purple-200",
+  },
+  ENROLLED: {
+    label: "Enrolled",
+    className: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  },
+  ADMISSION_DONE: {
+    label: "Enrolled",
     className: "bg-emerald-100 text-emerald-700 border-emerald-200",
   },
   ADMISSION: {
-    label: "Admission",
-    className: "bg-violet-100 text-violet-700 border-violet-200",
+    label: "Enrolled",
+    className: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  },
+  NOT_INTERESTED: {
+    label: "Not Interested",
+    className: "bg-rose-100 text-rose-700 border-rose-200",
   },
   LOST: {
-    label: "Lost",
-    className: "bg-red-100 text-red-700 border-red-200",
+    label: "Not Interested",
+    className: "bg-rose-100 text-rose-700 border-rose-200",
+  },
+  REJECTED: {
+    label: "Not Interested",
+    className: "bg-rose-100 text-rose-700 border-rose-200",
+  },
+  NEW: {
+    label: "New Lead",
+    className: "bg-slate-100 text-slate-700 border-slate-200",
+  },
+  CONTACTED: {
+    label: "Contacted",
+    className: "bg-cyan-100 text-cyan-700 border-cyan-200",
   },
 };
 

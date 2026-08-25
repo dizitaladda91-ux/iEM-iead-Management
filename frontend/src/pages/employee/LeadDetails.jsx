@@ -203,15 +203,20 @@ const LeadDetails = () => {
 
           {/* Lead Status Manager */}
           <div className="details-section">
-            <h3 className="section-title">Manage Lead Status</h3>
             <div className="status-selector-grid">
-              {["NEW", "CONTACTED", "FOLLOW_UP", "QUALIFIED", "ADMISSION_DONE", "LOST"].map((st) => (
+              {[
+                { key: "INTERESTED", label: "Interested" },
+                { key: "FOLLOW_UP", label: "Follow-up" },
+                { key: "VISITED", label: "Visited" },
+                { key: "ENROLLED", label: "Enrolled" },
+                { key: "NOT_INTERESTED", label: "Not Interested" },
+              ].map(({ key, label }) => (
                 <button
-                  key={st}
-                  className={`status-btn ${lead.status === st ? "active" : ""}`}
-                  onClick={() => handleStatusChange(st)}
+                  key={key}
+                  className={`status-btn ${lead.status === key ? "active" : ""}`}
+                  onClick={() => handleStatusChange(key)}
                 >
-                  {st.replace("_", " ")}
+                  {label}
                 </button>
               ))}
             </div>

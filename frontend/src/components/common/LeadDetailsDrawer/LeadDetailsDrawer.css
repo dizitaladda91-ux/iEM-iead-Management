@@ -452,11 +452,10 @@
   gap: 4px;
 }
 
-/* Status Badges */
 .status-badge-interested {
-  background: #f5f3ff;
-  color: #7c3aed;
-  border: 1px solid #ddd6fe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 8px;
@@ -473,6 +472,16 @@
   font-size: 12px;
 }
 
+.status-badge-visited {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
 .status-badge-enrolled {
   background: #ecfdf5;
   color: #059669;
@@ -483,10 +492,11 @@
   font-size: 12px;
 }
 
+.status-badge-not-interested,
 .status-badge-lost {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 8px;

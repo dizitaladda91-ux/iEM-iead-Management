@@ -113,45 +113,31 @@ const LeadFilters = ({
           >
 
             <option value="">
-
-              All
-
+              All Statuses
             </option>
 
-            <option value="NEW">
-
-              New
-
-            </option>
-
-            <option value="CONTACTED">
-
-              Contacted
-
-            </option>
-
-            <option value="QUALIFIED">
-
-              Qualified
-
+            <option value="INTERESTED">
+              Interested
             </option>
 
             <option value="FOLLOW_UP">
-
-              Follow Up
-
+              Follow-up
             </option>
 
-            <option value="ADMISSION">
-
-              Admission
-
+            <option value="VISITED">
+              Visited
             </option>
 
-            <option value="LOST">
+            <option value="ENROLLED">
+              Enrolled
+            </option>
 
-              Lost
+            <option value="NOT_INTERESTED">
+              Not Interested
+            </option>
 
+            <option value="NEW">
+              New Lead
             </option>
 
           </select>

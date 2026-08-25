@@ -22,12 +22,13 @@ const SearchFilterBar = () => {
             </div>
 
             <select>
-                <option>All Status</option>
-                <option>New</option>
-                <option>Hot</option>
-                <option>Warm</option>
-                <option>Cold</option>
-                <option>Converted</option>
+                <option value="">All Statuses</option>
+                <option value="INTERESTED">Interested</option>
+                <option value="FOLLOW_UP">Follow-up</option>
+                <option value="VISITED">Visited</option>
+                <option value="ENROLLED">Enrolled</option>
+                <option value="NOT_INTERESTED">Not Interested</option>
+                <option value="NEW">New Lead</option>
             </select>
 
             <select>

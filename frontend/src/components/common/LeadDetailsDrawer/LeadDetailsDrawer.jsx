@@ -762,16 +762,12 @@ const LeadDetailsDrawer = ({
                         value={status}
                         onChange={(e) => handleStatusSelect(e.target.value)}
                       >
-                        <option value="NEW">NEW LEAD</option>
-                        <option value="CONTACTED">CONTACTED</option>
-                        <option value="NOT_CONTACTED">NOT CONTACTED</option>
-                        <option value="FOLLOW_UP">FOLLOW UP REQUIRED</option>
-                        <option value="INTERESTED">INTERESTED</option>
-                        <option value="WALKED_IN">WALK-IN SCHEDULED / VISITED</option>
-                        <option value="QUALIFIED">QUALIFIED ADMISSION PROSPECT</option>
-                        <option value="ENROLLED">ENROLLED / ADMISSION DONE</option>
-                        <option value="REJECTED">REJECTED / NOT ELIGIBLE</option>
-                        <option value="LOST">LOST TO COMPETITOR</option>
+                        <option value="INTERESTED">Interested</option>
+                        <option value="FOLLOW_UP">Follow-up</option>
+                        <option value="VISITED">Visited</option>
+                        <option value="ENROLLED">Enrolled</option>
+                        <option value="NOT_INTERESTED">Not Interested</option>
+                        <option value="NEW">New Lead</option>
                       </select>
                     </div>
 
@@ -788,8 +784,8 @@ const LeadDetailsDrawer = ({
                     </div>
                   </div>
 
-                  {/* Dynamic Status Case 1: REJECTED / NOT_CONTACTED / LOST */}
-                  {(status === "REJECTED" || status === "NOT_CONTACTED" || status === "LOST") && (
+                  {/* Dynamic Status Case 1: REJECTED / NOT_INTERESTED / LOST */}
+                  {(status === "REJECTED" || status === "NOT_CONTACTED" || status === "LOST" || status === "NOT_INTERESTED") && (
                     <div className="dynamic-status-card rejected">
                       <div className="dynamic-status-title text-red-800">
                         <AlertCircle size={18} /> Rejection & Non-Contact Feedback
@@ -865,8 +861,8 @@ const LeadDetailsDrawer = ({
                     </div>
                   )}
 
-                  {/* Dynamic Status Case 3: WALKED_IN / INTERESTED */}
-                  {(status === "WALKED_IN" || status === "INTERESTED" || status === "WALK_IN_SCHEDULED") && (
+                  {/* Dynamic Status Case 3: VISITED / WALKED_IN / INTERESTED */}
+                  {(status === "VISITED" || status === "WALKED_IN" || status === "INTERESTED" || status === "WALK_IN_SCHEDULED") && (
                     <div className="dynamic-status-card walkin">
                       <div className="dynamic-status-title text-purple-800">
                         <Building size={18} /> Campus Walk-In & Visit Details

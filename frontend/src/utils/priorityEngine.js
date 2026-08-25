@@ -13,11 +13,12 @@ export const calculateLeadPriority = (status) => {
   const normalized = String(status).trim().toUpperCase().replace(/\s+/g, "_");
 
   const highStatuses = [
+    "ENROLLED",
+    "ADMISSION_DONE",
+    "VISITED",
     "WALKED_IN",
-    "WALK_IN_SCHEDULED",
-    "QUALIFIED",
     "INTERESTED",
-    "WALKIN",
+    "QUALIFIED",
   ];
 
   const mediumStatuses = [
@@ -41,6 +42,7 @@ export const getPriorityBadgeClass = (priority) => {
   const p = String(priority || "LOW").toUpperCase();
   switch (p) {
     case "HIGH":
+    case "URGENT":
       return "priority-badge-high";
     case "MEDIUM":
       return "priority-badge-medium";
@@ -51,30 +53,29 @@ export const getPriorityBadgeClass = (priority) => {
 };
 
 export const getStatusBadgeClass = (status) => {
-  const s = String(status || "NEW").toUpperCase().replace(/\s+/g, "_");
+  const s = String(status || "NEW").toUpperCase().replace(/[-\s]+/g, "_");
   switch (s) {
-    case "NEW":
-    case "PENDING":
-      return "status-badge-new";
-    case "CONTACTED":
-    case "NOT_CONTACTED":
-      return "status-badge-contacted";
+    case "INTERESTED":
+      return "status-badge-interested";
     case "FOLLOW_UP":
     case "FOLLOW_UP_REQUIRED":
+    case "FOLLOWUP":
       return "status-badge-followup";
-    case "QUALIFIED":
-    case "INTERESTED":
+    case "VISITED":
     case "WALKED_IN":
-    case "WALK_IN_SCHEDULED":
-      return "status-badge-interested";
+    case "WALK_IN":
+      return "status-badge-visited";
     case "ENROLLED":
     case "ADMISSION_DONE":
-    case "COMPLETED":
+    case "ADMITTED":
       return "status-badge-enrolled";
-    case "REJECTED":
+    case "NOT_INTERESTED":
+    case "NOTINTERESTED":
     case "LOST":
-      return "status-badge-lost";
+    case "REJECTED":
+      return "status-badge-not-interested";
+    case "NEW":
     default:
-      return "status-badge-default";
+      return "status-badge-new";
   }
 };

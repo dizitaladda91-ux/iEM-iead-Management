@@ -5,13 +5,15 @@
  */
 
 export const LEAD_STATUS = Object.freeze({
-  NEW: "new",
-  CONTACTED: "contacted",
-  FOLLOW_UP: "follow_up",
-  INTERESTED: "interested",
-  ADMISSION_DONE: "admission_done",
-  NOT_INTERESTED: "not_interested",
-  LOST: "lost",
+  NEW: "NEW",
+  INTERESTED: "INTERESTED",
+  FOLLOW_UP: "FOLLOW_UP",
+  VISITED: "VISITED",
+  ENROLLED: "ENROLLED",
+  NOT_INTERESTED: "NOT_INTERESTED",
+  ADMISSION_DONE: "ENROLLED",
+  CONTACTED: "CONTACTED",
+  LOST: "NOT_INTERESTED",
 });
 
 export const LEAD_SOURCE = Object.freeze({
