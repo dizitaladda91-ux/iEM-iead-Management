@@ -259,24 +259,56 @@ async function syncLeadStatus(
     [FOLLOWUP_OUTCOME.CALLBACK]: "FOLLOW_UP",
     [FOLLOWUP_OUTCOME.NO_RESPONSE]: "FOLLOW_UP",
     [FOLLOWUP_OUTCOME.NOT_INTERESTED]: "LOST",
-    [FOLLOWUP_OUTCOME.ADMISSION_DONE]: "ADMISSION_DONE",
+    [FOLLOWUP_OUTCOME.ADMISSION_DONE]: "ENROLLED",
+    "ADMISSION_CONFIRMED": "ENROLLED",
+    "CONNECTED": "CONTACTED",
+    "BUSY": "FOLLOW_UP",
+    "WRONG_NUMBER": "LOST",
+    "CONVERTED": "ENROLLED",
   };
 
-  const leadStatus = statusMap[outcome];
+  const leadStatus = statusMap[outcome] || "CONTACTED";
 
-  if (!leadStatus) {
-    throw new ApiError(
-      400,
-      "Invalid follow-up outcome."
-    );
-  }
-
-  return await updateLeadStatusRepository(
+  const updatedLead = await updateLeadStatusRepository(
     client,
     leadId,
     leadStatus,
     updatedBy
   );
+
+  // Auto-sync to admissions if enrolled
+  if (["ENROLLED", "ADMISSION_DONE", "ADMITTED"].includes(leadStatus)) {
+    const { rows: leadRows } = await client.query("SELECT * FROM leads WHERE id = $1;", [leadId]);
+    if (leadRows.length > 0) {
+      const l = leadRows[0];
+      const { rows: admRows } = await client.query("SELECT id FROM admissions WHERE lead_id = $1;", [leadId]);
+      if (admRows.length === 0) {
+        await client.query(`
+          INSERT INTO admissions (
+            lead_id, student_name, mobile, email, course_name, centre,
+            total_fee, paid_fee, pending_fee, fee_status,
+            assigned_counsellor_id, created_by, remarks
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+        `, [
+          l.id,
+          l.full_name,
+          l.mobile,
+          l.email,
+          l.interested_course || "Enrolled Course",
+          l.preferred_centre || "Main Campus",
+          0,
+          0,
+          0,
+          "PARTIAL",
+          l.assigned_to || null,
+          updatedBy,
+          "Auto-enrolled from Follow-up completion"
+        ]);
+      }
+    }
+  }
+
+  return updatedLead;
 }
 
 async function validateLead(leadId, client = null) {

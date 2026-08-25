@@ -214,6 +214,22 @@ export const addAdmissionPaymentService = async (admissionId, paymentData, curre
       remarks: paymentData.remarks || admission.remarks,
     });
 
+    // 3. Sync back to leads table feedback JSON
+    if (admission.lead_id) {
+      const { rows: lRows } = await client.query("SELECT feedback FROM leads WHERE id = $1;", [admission.lead_id]);
+      if (lRows.length > 0) {
+        let fb = {};
+        try {
+          if (typeof lRows[0].feedback === "string") fb = JSON.parse(lRows[0].feedback);
+          else if (typeof lRows[0].feedback === "object") fb = lRows[0].feedback || {};
+        } catch {}
+        fb.fee_paid = newPaid;
+        fb.total_fee = totalFee;
+        fb.next_due_date = newPending > 0 ? (paymentData.next_due_date || admission.next_due_date) : null;
+        await client.query("UPDATE leads SET feedback = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2;", [JSON.stringify(fb), admission.lead_id]);
+      }
+    }
+
     auditLogger({
       action: "ADMISSION_PAYMENT_COLLECTED",
       module: "ADMISSION",
