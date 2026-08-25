@@ -171,9 +171,21 @@ const MyAdmissions = () => {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
-  // Filter Admissions
+  // Filter Admissions by status, search, and due dates
   const safeAdmissions = Array.isArray(admissions) ? admissions : [];
   const filteredAdmissions = safeAdmissions.filter((item) => {
+    const s = String(search || "").toLowerCase().trim();
+    if (s) {
+      const matchName = String(item.student_name || "").toLowerCase().includes(s);
+      const matchMobile = String(item.mobile || "").toLowerCase().includes(s);
+      const matchCourse = String(item.course_name || "").toLowerCase().includes(s);
+      const matchCentre = String(item.centre || item.preferred_centre || "").toLowerCase().includes(s);
+      const matchAdmCode = String(item.admission_number || item.lead_code || "").toLowerCase().includes(s);
+      if (!matchName && !matchMobile && !matchCourse && !matchCentre && !matchAdmCode) {
+        return false;
+      }
+    }
+
     if (statusFilter === "ALL") return true;
     if (statusFilter === "OVERDUE") {
       return (

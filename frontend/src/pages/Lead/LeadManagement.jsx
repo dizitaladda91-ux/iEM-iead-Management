@@ -449,13 +449,10 @@ const openAssignModal = () => {
       />
 
       <LeadFilters
-
         filters={filters}
-
         onChange={handleFilterChange}
-
         onReset={handleResetFilters}
-
+        employees={employees}
       />
 
       {

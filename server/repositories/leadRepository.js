@@ -265,7 +265,6 @@ export const findLeadByMobileRepository = async (
  * =====================================================
  */
 export const getLeadsRepository = async (filters) => {
-
   const {
     page = 1,
     limit = 10,
@@ -274,6 +273,14 @@ export const getLeadsRepository = async (filters) => {
     status,
     priority,
     assigned_to,
+    course,
+    interested_course,
+    centre,
+    preferred_centre,
+    campaign_id,
+    date_range,
+    from_date,
+    to_date,
     sortBy = "created_at",
     order = "DESC",
   } = filters;
@@ -288,81 +295,129 @@ export const getLeadsRepository = async (filters) => {
   // ==========================
   // Search
   // ==========================
-
   if (search) {
-
     whereClause += `
       AND (
         l.lead_code ILIKE $${index}
         OR l.full_name ILIKE $${index}
         OR l.email ILIKE $${index}
         OR l.mobile ILIKE $${index}
+        OR l.interested_course ILIKE $${index}
+        OR l.preferred_centre ILIKE $${index}
       )
     `;
-
     values.push(`%${search}%`);
     index++;
-
   }
 
   // ==========================
   // Source Filter
   // ==========================
-
-  if (source) {
-
+  if (source && source !== "ALL") {
     whereClause += `
-      AND l.source = $${index}
+      AND l.source ILIKE $${index}
     `;
-
-    values.push(source);
+    values.push(`%${source}%`);
     index++;
-
   }
 
   // ==========================
   // Status Filter
   // ==========================
-
-  if (status) {
-
+  if (status && status !== "ALL") {
     whereClause += `
       AND l.status = $${index}
     `;
-
     values.push(status);
     index++;
-
   }
 
   // ==========================
   // Priority Filter
   // ==========================
-
-  if (priority) {
-
+  if (priority && priority !== "ALL") {
     whereClause += `
       AND l.priority = $${index}
     `;
-
     values.push(priority);
     index++;
+  }
 
+  // ==========================
+  // Course Filter
+  // ==========================
+  const targetCourse = course || interested_course;
+  if (targetCourse && targetCourse !== "ALL") {
+    whereClause += `
+      AND l.interested_course ILIKE $${index}
+    `;
+    values.push(`%${targetCourse}%`);
+    index++;
+  }
+
+  // ==========================
+  // Centre Filter
+  // ==========================
+  const targetCentre = centre || preferred_centre;
+  if (targetCentre && targetCentre !== "ALL") {
+    whereClause += `
+      AND l.preferred_centre ILIKE $${index}
+    `;
+    values.push(`%${targetCentre}%`);
+    index++;
+  }
+
+  // ==========================
+  // Campaign Filter
+  // ==========================
+  if (campaign_id && campaign_id !== "ALL") {
+    whereClause += `
+      AND l.campaign_id = $${index}
+    `;
+    values.push(campaign_id);
+    index++;
   }
 
   // ==========================
   // Assigned Employee Filter
   // ==========================
+  if (assigned_to && assigned_to !== "ALL") {
+    if (assigned_to === "UNASSIGNED") {
+      whereClause += `
+        AND l.assigned_to IS NULL
+      `;
+    } else {
+      whereClause += `
+        AND l.assigned_to = $${index}
+      `;
+      values.push(assigned_to);
+      index++;
+    }
+  }
 
-  if (assigned_to) {
+  // ==========================
+  // Date Range Filters
+  // ==========================
+  if (date_range === "today") {
+    whereClause += ` AND l.created_at::date = CURRENT_DATE `;
+  } else if (date_range === "yesterday") {
+    whereClause += ` AND l.created_at::date = CURRENT_DATE - 1 `;
+  } else if (date_range === "this_week") {
+    whereClause += ` AND l.created_at >= DATE_TRUNC('week', CURRENT_DATE) `;
+  } else if (date_range === "this_month") {
+    whereClause += ` AND l.created_at >= DATE_TRUNC('month', CURRENT_DATE) `;
+  }
 
-    whereClause += `
-      AND l.assigned_to = $${index}
-    `;
-
-    values.push(assigned_to);
+  if (from_date) {
+    whereClause += ` AND l.created_at >= $${index} `;
+    values.push(new Date(from_date));
     index++;
+  }
 
+  if (to_date) {
+    whereClause += ` AND l.created_at <= $${index} `;
+    values.push(new Date(to_date));
+    index++;
   }
 
   // ==========================
@@ -530,16 +585,24 @@ export const getMyLeadsRepository = async (filters) => {
   // ==========================
   // Priority
   // ==========================
-
-  if (priority) {
-
+  if (priority && priority !== "ALL") {
     whereClause += `
       AND l.priority = $${index}
     `;
-
     values.push(priority);
     index++;
+  }
 
+  // ==========================
+  // Course
+  // ==========================
+  const targetCourse = filters.course || filters.interested_course;
+  if (targetCourse && targetCourse !== "ALL") {
+    whereClause += `
+      AND l.interested_course ILIKE $${index}
+    `;
+    values.push(`%${targetCourse}%`);
+    index++;
   }
 
   // ==========================
