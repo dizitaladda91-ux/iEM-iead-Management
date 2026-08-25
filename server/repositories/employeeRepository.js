@@ -907,11 +907,17 @@ export const getEmployeePerformanceRepository = async (employeeId) => {
         SELECT
             COUNT(l.id) AS total_assigned,
             COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED', 'COMPLETED')) AS completed_leads,
-            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING')) AS pending_leads,
+            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING', 'VISITED')) AS pending_leads,
             COUNT(l.id) FILTER (WHERE l.status IN ('LOST', 'REJECTED', 'NOT_INTERESTED')) AS lost_leads,
-            (SELECT COUNT(*) FROM admissions WHERE assigned_counsellor_id = $1) AS enrolled_admissions,
-            (SELECT COALESCE(SUM(paid_fee), 0) FROM admissions WHERE assigned_counsellor_id = $1) AS total_fees_collected,
-            (SELECT COALESCE(SUM(total_fee), 0) FROM admissions WHERE assigned_counsellor_id = $1) AS total_revenue_value
+            COALESCE(
+                GREATEST(
+                    (SELECT COUNT(*) FROM admissions WHERE (assigned_counsellor_id = $1 OR created_by = (SELECT user_id FROM employees WHERE id = $1))),
+                    COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED'))
+                ),
+                0
+            ) AS enrolled_admissions,
+            (SELECT COALESCE(SUM(paid_fee), 0) FROM admissions WHERE (assigned_counsellor_id = $1 OR created_by = (SELECT user_id FROM employees WHERE id = $1))) AS total_fees_collected,
+            (SELECT COALESCE(SUM(total_fee), 0) FROM admissions WHERE (assigned_counsellor_id = $1 OR created_by = (SELECT user_id FROM employees WHERE id = $1))) AS total_revenue_value
         FROM leads l
         WHERE l.assigned_to = $1 AND l.is_deleted = FALSE;
     `;
@@ -933,13 +939,13 @@ export const getEmployeePerformanceRepository = async (employeeId) => {
             'Week ' || TO_CHAR(w.week_start, 'IW') AS week_name,
             COUNT(l.id) AS assigned_count,
             COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED', 'COMPLETED')) AS completed_count,
-            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING')) AS pending_count,
+            COUNT(l.id) FILTER (WHERE l.status IN ('NEW', 'CONTACTED', 'FOLLOW_UP', 'FOLLOW_UP_REQUIRED', 'QUALIFIED', 'INTERESTED', 'HOT', 'WARM', 'COLD', 'PENDING', 'VISITED')) AS pending_count,
             COUNT(l.id) FILTER (WHERE l.status IN ('ENROLLED', 'ADMISSION_DONE', 'ADMITTED')) AS enrolled_count,
             COALESCE((
                 SELECT SUM(p.amount)
                 FROM admission_payments p
                 JOIN admissions a ON p.admission_id = a.id
-                WHERE a.assigned_counsellor_id = $1 
+                WHERE (a.assigned_counsellor_id = $1 OR a.created_by = (SELECT user_id FROM employees WHERE id = $1))
                   AND p.payment_date >= w.week_start::date 
                   AND p.payment_date <= (w.week_start + INTERVAL '6 days')::date
             ), 0) AS fees_collected

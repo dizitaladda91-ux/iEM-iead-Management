@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   TrendingUp,
   Users,
@@ -12,14 +13,22 @@ import {
   Phone,
   Sparkles,
   Award,
-  Target
+  Target,
+  ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 import { getMyPerformance } from "../../services/employeeService";
+import LeadDetailsDrawer from "../../components/common/LeadDetailsDrawer/LeadDetailsDrawer";
 import "./MyPerformance.css";
 
 const MyPerformance = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [perfData, setPerfData] = useState(null);
+
+  // Drawer for inspecting lead from performance page
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const fetchPerformance = async () => {
     setLoading(true);
@@ -37,6 +46,11 @@ const MyPerformance = () => {
     fetchPerformance();
   }, []);
 
+  const handleOpenLead = (lead) => {
+    setSelectedLead(lead);
+    setIsDrawerOpen(true);
+  };
+
   const summary = perfData?.summary || {};
   const weekWise = perfData?.week_wise || [];
   const recentLeads = perfData?.recent_leads || [];
@@ -51,13 +65,15 @@ const MyPerformance = () => {
             <TrendingUp className="header-icon" /> My Performance & Weekly Scorecard
           </h1>
           <p className="header-subtitle">
-            Track your lead conversions, weekly completion rates, admissions achieved, and overall productivity.
+            Track your lead conversions, weekly completion rates, admissions achieved, and overall productivity in real time.
           </p>
         </div>
-        <button className="btn-refresh" onClick={fetchPerformance} title="Refresh Scorecard">
-          <RefreshCw size={16} className={loading ? "spin" : ""} />
-          <span>Refresh</span>
-        </button>
+        <div className="header-actions">
+          <button className="btn-refresh" onClick={fetchPerformance} title="Refresh Scorecard">
+            <RefreshCw size={16} className={loading ? "spin" : ""} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -96,45 +112,92 @@ const MyPerformance = () => {
             </div>
           </div>
 
-          {/* Core Metric Cards */}
+          {/* Interactive Core Metric Cards */}
           <div className="my-perf-stats-grid">
-            <div className="perf-card blue">
+            {/* 1. Total Leads Assigned */}
+            <div
+              className="perf-card blue clickable"
+              onClick={() => navigate("/employee/my-leads")}
+              role="button"
+              tabIndex={0}
+              title="Click to view all your assigned leads"
+            >
               <div className="card-top">
                 <span>Total Leads Assigned</span>
                 <div className="icon-wrap blue"><Users size={20} /></div>
               </div>
               <div className="card-value">{summary.total_assigned || 0}</div>
-              <div className="card-sub">Assigned inquiries</div>
+              <div className="card-sub-link">
+                <span>View Leads</span>
+                <ArrowRight size={13} />
+              </div>
             </div>
 
-            <div className="perf-card amber">
+            {/* 2. Pending Follow-ups */}
+            <div
+              className="perf-card amber clickable"
+              onClick={() => navigate("/employee/followups")}
+              role="button"
+              tabIndex={0}
+              title="Click to open your follow-up planner"
+            >
               <div className="card-top">
                 <span>Pending Follow-ups</span>
                 <div className="icon-wrap amber"><Clock size={20} /></div>
               </div>
               <div className="card-value">{summary.pending_leads || 0}</div>
-              <div className="card-sub">In active pipeline</div>
+              <div className="card-sub-link">
+                <span>Open Follow-ups</span>
+                <ArrowRight size={13} />
+              </div>
             </div>
 
-            <div className="perf-card green">
+            {/* 3. Leads Completed */}
+            <div
+              className="perf-card green clickable"
+              onClick={() => navigate("/employee/followups")}
+              role="button"
+              tabIndex={0}
+              title="Click to view follow-up history"
+            >
               <div className="card-top">
                 <span>Leads Completed / Closed</span>
                 <div className="icon-wrap green"><CheckCircle2 size={20} /></div>
               </div>
               <div className="card-value">{summary.completed_leads || 0}</div>
-              <div className="card-sub">Completed counselling</div>
+              <div className="card-sub-link">
+                <span>View Completed</span>
+                <ArrowRight size={13} />
+              </div>
             </div>
 
-            <div className="perf-card purple">
+            {/* 4. Admissions Enrolled */}
+            <div
+              className="perf-card purple clickable"
+              onClick={() => navigate("/employee/admissions")}
+              role="button"
+              tabIndex={0}
+              title="Click to open your student admissions & fee ledger"
+            >
               <div className="card-top">
                 <span>Admissions Enrolled</span>
                 <div className="icon-wrap purple"><GraduationCap size={20} /></div>
               </div>
               <div className="card-value">{summary.enrolled_count || 0}</div>
-              <div className="card-sub">Confirmed students</div>
+              <div className="card-sub-link">
+                <span>View Admissions</span>
+                <ArrowRight size={13} />
+              </div>
             </div>
 
-            <div className="perf-card orange">
+            {/* 5. Fee Revenue Collected */}
+            <div
+              className="perf-card orange clickable"
+              onClick={() => navigate("/employee/admissions")}
+              role="button"
+              tabIndex={0}
+              title="Click to view fee collection ledger"
+            >
               <div className="card-top">
                 <span>Fee Revenue Collected</span>
                 <div className="icon-wrap orange"><IndianRupee size={20} /></div>
@@ -142,7 +205,10 @@ const MyPerformance = () => {
               <div className="card-value">
                 ?{Number(summary.total_fees_collected || 0).toLocaleString("en-IN")}
               </div>
-              <div className="card-sub">Directly generated revenue</div>
+              <div className="card-sub-link">
+                <span>Fee Collection</span>
+                <ArrowRight size={13} />
+              </div>
             </div>
           </div>
 
@@ -222,7 +288,7 @@ const MyPerformance = () => {
               <Layers size={20} className="text-purple-600" />
               <div>
                 <h3>Recent Assigned Leads Pipeline</h3>
-                <p>Latest leads under your active counselling portfolio</p>
+                <p>Click any lead card to open the guided 4-step counselling drawer</p>
               </div>
             </div>
 
@@ -231,7 +297,14 @@ const MyPerformance = () => {
             ) : (
               <div className="leads-mini-grid">
                 {recentLeads.map((l) => (
-                  <div key={l.id} className="lead-mini-card">
+                  <div
+                    key={l.id}
+                    className="lead-mini-card clickable"
+                    onClick={() => handleOpenLead(l)}
+                    role="button"
+                    tabIndex={0}
+                    title="Click to open lead profile & counselling drawer"
+                  >
                     <div className="lead-mini-top">
                       <div className="l-name">{l.full_name}</div>
                       <span className={`l-status ${l.status?.toLowerCase()}`}>
@@ -249,6 +322,20 @@ const MyPerformance = () => {
           </div>
         </>
       )}
+
+      {/* Guided 4-Step Counselling Drawer */}
+      <LeadDetailsDrawer
+        open={isDrawerOpen}
+        lead={selectedLead}
+        leadId={selectedLead?.id}
+        mode="edit"
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedLead(null);
+        }}
+        onUpdated={fetchPerformance}
+        onStatusUpdated={fetchPerformance}
+      />
     </div>
   );
 };

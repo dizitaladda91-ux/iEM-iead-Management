@@ -1,46 +1,40 @@
+import { useNavigate } from "react-router-dom";
+import { TrendingUp, Plus, Calendar } from "lucide-react";
 import "./MyLeadsHeader.css";
-import { Plus, Download } from "lucide-react";
 
 const MyLeadsHeader = () => {
+    const navigate = useNavigate();
 
     return (
-
         <div className="my-leads-header">
-
             <div className="header-left">
-
                 <h2>My Leads</h2>
-
                 <p>
-                    Manage and track all assigned leads from one place.
+                    Manage and track all your assigned leads and active counseling conversations.
                 </p>
-
             </div>
 
             <div className="header-right">
-
-                <button className="export-btn">
-
-                    <Download size={18} />
-
-                    Export
-
+                <button
+                    className="export-btn"
+                    onClick={() => navigate("/employee/performance")}
+                    title="View My Conversion Performance Scorecard"
+                >
+                    <TrendingUp size={16} />
+                    <span>My Performance</span>
                 </button>
 
-                <button className="followup-btn">
-
-                    <Plus size={18} />
-
-                    Add Follow-up
-
+                <button
+                    className="followup-btn"
+                    onClick={() => navigate("/employee/followups")}
+                    title="Open Follow-up Task Planner"
+                >
+                    <Calendar size={16} />
+                    <span>Follow-up Planner</span>
                 </button>
-
             </div>
-
         </div>
-
     );
-
 };
 
 export default MyLeadsHeader;

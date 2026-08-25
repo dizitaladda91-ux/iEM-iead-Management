@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PhoneCall,
   Calendar,
@@ -28,6 +29,7 @@ import LeadDetailsDrawer from "../../components/common/LeadDetailsDrawer/LeadDet
 import "./MyFollowups.css";
 
 const MyFollowups = () => {
+  const navigate = useNavigate();
   const [followups, setFollowups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("ALL_PENDING"); // ALL_PENDING, TODAY, OVERDUE, COMPLETED, ALL
@@ -207,7 +209,15 @@ const MyFollowups = () => {
           </p>
         </div>
 
-        <div className="header-view-toggle">
+        <div className="header-view-toggle" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className="view-btn"
+            onClick={() => navigate("/employee/performance")}
+            title="View My Performance & Conversion Scorecard"
+            style={{ background: '#eff6ff', color: '#2563eb', borderColor: '#bfdbfe' }}
+          >
+            <TrendingUp size={16} /> <span>My Performance</span>
+          </button>
           <button
             className={`view-btn ${viewMode === "cards" ? "active" : ""}`}
             onClick={() => setViewMode("cards")}

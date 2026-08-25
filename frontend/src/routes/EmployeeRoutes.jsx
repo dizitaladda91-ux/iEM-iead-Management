@@ -29,6 +29,11 @@ const EmployeeRoutes = () => {
         />
 
         <Route
+          path="my-leads"
+          element={<MyLeads />}
+        />
+
+        <Route
           path="leads/:id"
           element={<LeadDetails />}
         />

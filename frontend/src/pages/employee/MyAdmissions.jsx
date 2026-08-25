@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   GraduationCap,
   IndianRupee,
@@ -31,6 +32,7 @@ import {
 import "./MyAdmissions.css";
 
 const MyAdmissions = () => {
+  const navigate = useNavigate();
   const [admissions, setAdmissions] = useState([]);
   const [stats, setStats] = useState({
     total_admissions: 0,
@@ -196,10 +198,16 @@ const MyAdmissions = () => {
             Manage your enrolled students, collect fee installments, view transaction ledgers, and track pending dues in real time.
           </p>
         </div>
-        <button className="btn-refresh" onClick={fetchData} title="Refresh Admissions">
-          <RefreshCw size={16} className={loading ? "spin" : ""} />
-          <span>Refresh</span>
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="btn-refresh" onClick={() => navigate("/employee/performance")} title="View My Performance & Conversion Scorecard">
+            <TrendingUp size={16} />
+            <span>My Performance</span>
+          </button>
+          <button className="btn-refresh" onClick={fetchData} title="Refresh Admissions">
+            <RefreshCw size={16} className={loading ? "spin" : ""} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Financial Analytics Summary Grid */}

@@ -212,6 +212,17 @@
 .icon-wrap.purple { background: #faf5ff; color: #9333ea; }
 .icon-wrap.orange { background: #fff7ed; color: #ea580c; }
 
+.perf-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.perf-card.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
 .card-value {
   font-size: 1.6rem;
   font-weight: 700;
@@ -219,10 +230,32 @@
   margin-top: 0.5rem;
 }
 
+.card-sub-link {
+  font-size: 0.78rem;
+  color: #2563eb;
+  margin-top: 0.35rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .card-sub {
   font-size: 0.75rem;
   color: #94a3b8;
   margin-top: 0.25rem;
+}
+
+.lead-mini-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lead-mini-card.clickable:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Sections */
