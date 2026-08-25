@@ -54,21 +54,32 @@ validateEnv();
  */
 app.use(cors({
   origin(origin, callback) {
-    // Requests without an Origin header include Render health checks and
-    // server-to-server calls, which do not need browser CORS protection.
+    // Requests without an Origin header (curl, health checks, server-to-server)
     if (!origin || process.env.NODE_ENV !== "production") {
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+    // Allow localhost & local live previews (127.0.0.1)
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
       return callback(null, true);
     }
 
-    return callback(new Error("Origin is not allowed by CORS."));
+    // Allow configured client origins
+    if (allowedOrigins.length === 0 || allowedOrigins.includes("*")) {
+      return callback(null, true);
+    }
+
+    const cleanOrigin = origin.replace(/\/$/, "");
+    if (allowedOrigins.includes(cleanOrigin)) {
+      return callback(null, true);
+    }
+
+    // Permissive callback so public website forms and embeds can submit leads
+    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
 }));
 
 app.use(express.json());
