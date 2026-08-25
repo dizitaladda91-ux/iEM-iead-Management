@@ -39,11 +39,10 @@ export const getNotificationsController = asyncHandler(async (req, res) => {
         });
       });
 
-      // 2. Admin: Recent Admissions
+      // 2. Admin: Recent Admissions (Note: admissions table has no is_deleted)
       const { rows: recentAdm } = await pool.query(`
         SELECT a.id, a.student_name, a.course_name, a.paid_fee, a.created_at
         FROM admissions a
-        WHERE a.is_deleted = FALSE
         ORDER BY a.created_at DESC
         LIMIT 5;
       `);
@@ -172,7 +171,7 @@ export const getNotificationsController = asyncHandler(async (req, res) => {
           });
         });
 
-        // 4. Pending Fee Installment Due Dates
+        // 4. Pending Fee Installment Due Dates (admissions table)
         const { rows: pendingFees } = await pool.query(`
           SELECT id, student_name, pending_fee, next_due_date, course_name
           FROM admissions
@@ -180,7 +179,6 @@ export const getNotificationsController = asyncHandler(async (req, res) => {
             AND fee_status IN ('PENDING', 'PARTIAL', 'OVERDUE')
             AND next_due_date IS NOT NULL
             AND next_due_date <= CURRENT_DATE + INTERVAL '7 days'
-            AND is_deleted = FALSE
           ORDER BY next_due_date ASC
           LIMIT 5;
         `, [employeeId, user.id]);
