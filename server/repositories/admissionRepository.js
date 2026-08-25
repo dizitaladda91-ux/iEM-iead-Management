@@ -148,7 +148,7 @@ export const getCounsellorAdmissionsRepository = async (employeeId, search = "")
       COUNT(p.id) AS payments_count
     FROM admissions a
     LEFT JOIN admission_payments p ON a.id = p.admission_id
-    WHERE a.assigned_counsellor_id = $1
+    WHERE (a.assigned_counsellor_id = $1 OR a.created_by = (SELECT user_id FROM employees WHERE id = $1))
   `;
   const values = [employeeId];
 

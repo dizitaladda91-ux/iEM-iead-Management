@@ -64,24 +64,34 @@ export const getCounsellorAdmissionsService = async (currentUser, search = "") =
   const client = await pool.connect();
   let employeeId = null;
   try {
-    // Find employee ID from user ID
+    // 1. Find employee ID from user ID
     const { rows } = await client.query("SELECT id FROM employees WHERE user_id = $1 AND is_deleted = FALSE;", [currentUser.id]);
     if (rows.length > 0) {
       employeeId = rows[0].id;
+    } else {
+      const { rows: byEmail } = await client.query("SELECT id FROM employees WHERE email = $1 AND is_deleted = FALSE;", [currentUser.email]);
+      if (byEmail.length > 0) employeeId = byEmail[0].id;
     }
   } finally {
     client.release();
   }
 
-  if (!employeeId && currentUser.role !== "ADMIN") {
-    return { admissions: [] };
+  if (currentUser.role === "ADMIN") {
+    const res = await getAllAdmissionsRepository({ page: 1, limit: 100, search });
+    return { admissions: res };
   }
 
-  const admissions = employeeId 
-    ? await getCounsellorAdmissionsRepository(employeeId, search)
-    : await getAllAdmissionsRepository({ page: 1, limit: 100, search });
+  if (employeeId) {
+    const admissions = await getCounsellorAdmissionsRepository(employeeId, search);
+    return { admissions };
+  }
 
-  return { admissions };
+  // Fallback: direct admissions created by this user
+  const { rows: fallbackRows } = await pool.query(
+    "SELECT a.*, COUNT(p.id) AS payments_count FROM admissions a LEFT JOIN admission_payments p ON a.id = p.admission_id WHERE a.created_by = $1 GROUP BY a.id ORDER BY a.created_at DESC;",
+    [currentUser.id]
+  );
+  return { admissions: fallbackRows };
 };
 
 /**
