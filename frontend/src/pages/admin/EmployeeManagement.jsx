@@ -17,12 +17,9 @@ import {
   UserCheck,
   TrendingUp,
   GraduationCap,
-  Clock,
-  IndianRupee,
-  Calendar,
-  Layers,
   ArrowUpRight,
-  Eye
+  Eye,
+  Download,
 } from "lucide-react";
 import {
   getEmployees,
@@ -33,6 +30,7 @@ import {
   getEmployeeStatistics,
   getEmployeePerformance,
 } from "../../services/employeeService";
+import { exportToCSV } from "../../utils/exportCsv";
 import axiosInstance from "../../api/axiosInstance";
 import "./EmployeeManagement.css";
 
@@ -237,6 +235,30 @@ const EmployeeManagement = () => {
 
   const safeEmployees = Array.isArray(employees) ? employees : [];
 
+  // Export Staff Directory to CSV
+  const handleExportStaff = () => {
+    if (!safeEmployees.length) {
+      alert("No employee records available to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Employee Code", key: (r) => r.employee_code || `#${r.id}` },
+      { label: "Full Name", key: "full_name" },
+      { label: "Role", key: "role" },
+      { label: "Designation", key: (r) => r.designation || "N/A" },
+      { label: "Department", key: (r) => r.department_name || "Admissions" },
+      { label: "Email Address", key: "email" },
+      { label: "Mobile Number", key: "mobile" },
+      { label: "Employment Type", key: "employment_type" },
+      { label: "Status", key: "status" },
+      { label: "Joining Date", key: (r) => r.joining_date ? String(r.joining_date).slice(0, 10) : "" },
+      { label: "Address / City", key: (r) => r.address || "" },
+    ];
+
+    exportToCSV(safeEmployees, columns, "iem_employee_directory");
+  };
+
   return (
     <div className="employee-mgmt-container">
       {/* Header */}
@@ -245,10 +267,16 @@ const EmployeeManagement = () => {
           <h1 className="header-title">Staff & Counsellor Management</h1>
           <p className="header-subtitle">Manage CRM employees, roles, counsellors, and track week-wise performance</p>
         </div>
-        <button className="btn-primary" onClick={handleOpenCreateModal}>
-          <UserPlus size={18} />
-          <span>Add Employee</span>
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button className="btn-secondary" onClick={handleExportStaff} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #CBD5E1', cursor: 'pointer', fontWeight: 600, color: '#1E293B' }} title="Export Staff Directory to CSV">
+            <Download size={18} />
+            <span>Export Staff</span>
+          </button>
+          <button className="btn-primary" onClick={handleOpenCreateModal}>
+            <UserPlus size={18} />
+            <span>Add Employee</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}

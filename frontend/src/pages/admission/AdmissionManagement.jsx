@@ -23,6 +23,7 @@ import {
   addAdmissionPayment,
   getAdmissionDetails,
 } from "../../services/admissionService";
+import { exportToCSV } from "../../utils/exportCsv";
 import "./AdmissionManagement.css";
 
 const AdmissionManagement = () => {
@@ -166,48 +167,24 @@ const AdmissionManagement = () => {
       return;
     }
 
-    const headers = [
-      "Student Name",
-      "Mobile",
-      "Email",
-      "Course",
-      "Centre",
-      "Total Fee (INR)",
-      "Paid Fee (INR)",
-      "Pending Fee (INR)",
-      "Fee Status",
-      "Next Due Date",
-      "Counsellor",
+    const columns = [
+      { label: "Admission ID", key: (r) => r.admission_number || `#${r.id}` },
+      { label: "Student Name", key: "student_name" },
+      { label: "Mobile Number", key: "mobile" },
+      { label: "Email Address", key: "email" },
+      { label: "Enrolled Course", key: "course_name" },
+      { label: "Centre / Campus", key: (r) => r.centre || "Main Campus" },
+      { label: "Total Fee (INR)", key: (r) => Number(r.total_fee || 0) },
+      { label: "Paid Fee (INR)", key: (r) => Number(r.paid_fee || 0) },
+      { label: "Pending Balance (INR)", key: (r) => Number(r.pending_fee || 0) },
+      { label: "Payment Status", key: "fee_status" },
+      { label: "Next Due Date", key: (r) => r.next_due_date ? String(r.next_due_date).slice(0, 10) : "N/A" },
+      { label: "Assigned Counsellor", key: (r) => r.counsellor_name || "Unassigned" },
+      { label: "Enrolled Date", key: (r) => r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "" },
+      { label: "Remarks", key: "remarks" },
     ];
 
-    const rows = admissions.map((adm) => [
-      `"${adm.student_name}"`,
-      `"${adm.mobile}"`,
-      `"${adm.email || ""}"`,
-      `"${adm.course_name}"`,
-      `"${adm.centre || "Main Campus"}"`,
-      adm.total_fee || 0,
-      adm.paid_fee || 0,
-      adm.pending_fee || 0,
-      adm.fee_status,
-      adm.next_due_date ? String(adm.next_due_date).slice(0, 10) : "",
-      `"${adm.counsellor_name || "Unassigned"}"`,
-    ]);
-
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `IEM_Admissions_Ledger_${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCSV(admissions, columns, "iem_admissions_ledger");
   };
 
   return (

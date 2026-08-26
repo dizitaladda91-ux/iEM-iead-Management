@@ -5,6 +5,7 @@ import MyLeadsHeader from "../../components/employee/myLeads/MyLeadsHeader/MyLea
 import SearchFilterBar from "../../components/employee/myLeads/SearchFilterBar/SearchFilterBar";
 import LeadsTable from "../../components/employee/myLeads/LeadsTable/LeadsTable";
 import { getMyLeads } from "../../services/employeeLeadService";
+import { exportToCSV } from "../../utils/exportCsv";
 
 const MyLeads = () => {
   const [searchParams] = useSearchParams();
@@ -55,9 +56,35 @@ const MyLeads = () => {
     });
   };
 
+  // Export My Assigned Leads to CSV
+  const handleExportMyLeads = () => {
+    if (!leads.length) {
+      alert("No leads found to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Lead Code", key: (r) => r.lead_code || `#${r.id}` },
+      { label: "Student Name", key: "full_name" },
+      { label: "Primary Mobile", key: "mobile" },
+      { label: "Alternate Mobile", key: "alternate_mobile" },
+      { label: "Email Address", key: "email" },
+      { label: "Interested Course", key: "interested_course" },
+      { label: "Preferred Centre", key: "preferred_centre" },
+      { label: "Status", key: "status" },
+      { label: "Priority", key: "priority" },
+      { label: "City", key: "city" },
+      { label: "Next Follow-up", key: (r) => r.next_followup ? new Date(r.next_followup).toLocaleString("en-IN") : "Not Scheduled" },
+      { label: "Assigned Date", key: (r) => r.captured_at ? new Date(r.captured_at).toLocaleDateString("en-IN") : "" },
+      { label: "Discussion Notes", key: "remarks" },
+    ];
+
+    exportToCSV(leads, columns, "my_assigned_leads");
+  };
+
   return (
     <div className="my-leads-page">
-      <MyLeadsHeader />
+      <MyLeadsHeader onExport={handleExportMyLeads} />
 
       <SearchFilterBar
         filters={filters}

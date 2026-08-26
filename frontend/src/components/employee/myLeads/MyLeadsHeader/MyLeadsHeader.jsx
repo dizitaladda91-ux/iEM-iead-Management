@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Plus, Calendar } from "lucide-react";
+import { TrendingUp, Calendar, Download } from "lucide-react";
 import "./MyLeadsHeader.css";
 
-const MyLeadsHeader = () => {
+const MyLeadsHeader = ({ onExport }) => {
     const navigate = useNavigate();
 
     return (
@@ -15,6 +15,17 @@ const MyLeadsHeader = () => {
             </div>
 
             <div className="header-right">
+                {onExport && (
+                    <button
+                        className="export-btn"
+                        onClick={onExport}
+                        title="Export My Assigned Leads to CSV/Excel"
+                    >
+                        <Download size={16} />
+                        <span>Export Leads</span>
+                    </button>
+                )}
+
                 <button
                     className="export-btn"
                     onClick={() => navigate("/employee/performance")}

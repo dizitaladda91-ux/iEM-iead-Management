@@ -15,7 +15,7 @@ import {
   deleteCampaign,
 } from "../../services/campaignService";
 
-
+import { exportToCSV } from "../../utils/exportCsv";
 
 import CampaignAnalyticsDrawer from "../../components/Campaign/CampaignAnalyticsDrawer/CampaignAnalyticsDrawer";
 
@@ -50,6 +50,29 @@ const CampaignManagement = () => {
 const [drawerOpen, setDrawerOpen] = useState(false);
 
 const [selectedCampaign, setSelectedCampaign] = useState(null);
+
+  // Export Campaigns to CSV
+  const handleExportCampaigns = () => {
+    if (!campaigns.length) {
+      alert("No campaigns available to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Campaign Code", key: (r) => r.campaign_code || `#${r.id}` },
+      { label: "Campaign Name", key: "campaign_name" },
+      { label: "Marketing Platform", key: "platform" },
+      { label: "Lead Source", key: "source" },
+      { label: "Budget (INR)", key: (r) => Number(r.budget || 0) },
+      { label: "Total Leads Generated", key: (r) => Number(r.total_leads || r.leads_count || 0) },
+      { label: "Status", key: "status" },
+      { label: "Start Date", key: (r) => r.start_date ? String(r.start_date).slice(0, 10) : "" },
+      { label: "End Date", key: (r) => r.end_date ? String(r.end_date).slice(0, 10) : "" },
+      { label: "Landing Page URL", key: "landing_page_url" },
+    ];
+
+    exportToCSV(campaigns, columns, "iem_marketing_campaigns");
+  };
 
   /*
   =====================================
@@ -240,10 +263,11 @@ const handleView = (campaign) => {
     <div className="campaign-page">
 
       <CampaignHeader
-  loading={loading}
-  onRefresh={loadCampaigns}
-  onAdd={() => navigate("/campaigns/new")}
-/>
+        loading={loading}
+        onRefresh={loadCampaigns}
+        onExport={handleExportCampaigns}
+        onAdd={() => navigate("/campaigns/new")}
+      />
 
       <CampaignStats
         loading={loading}

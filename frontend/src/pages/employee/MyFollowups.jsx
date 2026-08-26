@@ -18,6 +18,7 @@ import {
   ArrowRight,
   UserCheck,
   TrendingUp,
+  Download,
 } from "lucide-react";
 import {
   getFollowups,
@@ -25,6 +26,7 @@ import {
   rescheduleFollowup,
   getFollowupStatistics,
 } from "../../services/followupService";
+import { exportToCSV } from "../../utils/exportCsv";
 import LeadDetailsDrawer from "../../components/common/LeadDetailsDrawer/LeadDetailsDrawer";
 import "./MyFollowups.css";
 
@@ -196,6 +198,29 @@ const MyFollowups = () => {
     return true;
   });
 
+  // Export Followups to CSV
+  const handleExportFollowups = () => {
+    if (!displayedFollowups.length) {
+      alert("No follow-up tasks available to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Task ID", key: (r) => `#${r.id}` },
+      { label: "Student Name", key: (r) => r.student_name || r.full_name || "Lead" },
+      { label: "Mobile Number", key: "mobile" },
+      { label: "Interested Course", key: (r) => r.interested_course || r.course_name || "N/A" },
+      { label: "Follow-up Mode", key: "followup_type" },
+      { label: "Scheduled Time", key: (r) => r.next_followup_at ? new Date(r.next_followup_at).toLocaleString("en-IN") : "N/A" },
+      { label: "Task Status", key: "status" },
+      { label: "Priority", key: "priority" },
+      { label: "Outcome / Feedback", key: "outcome" },
+      { label: "Notes / Discussion", key: "remarks" },
+    ];
+
+    exportToCSV(displayedFollowups, columns, "my_followup_planner");
+  };
+
   return (
     <div className="my-followups-container">
       {/* Header */}
@@ -210,6 +235,13 @@ const MyFollowups = () => {
         </div>
 
         <div className="header-view-toggle" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className="view-btn"
+            onClick={handleExportFollowups}
+            title="Export Follow-up Tasks to CSV/Excel"
+          >
+            <Download size={16} /> <span>Export CSV</span>
+          </button>
           <button
             className="view-btn"
             onClick={() => navigate("/employee/performance")}

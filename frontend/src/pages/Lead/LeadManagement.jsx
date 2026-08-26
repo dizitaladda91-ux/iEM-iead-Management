@@ -23,6 +23,7 @@ import {
 } from "../../services/leadAssignmentService";
 import LeadDetailsDrawer from "../../components/common/LeadDetailsDrawer/LeadDetailsDrawer";
 import DeleteLeadModal from "../../components/LeadManagement/DeleteLeadModal";
+import { exportToCSV } from "../../utils/exportCsv";
 const LeadManagement = () => {
 
   /*
@@ -433,6 +434,41 @@ const openAssignModal = () => {
   setAssignModal(true);
 
 };
+
+  // Export Leads to CSV
+  const handleExportLeads = (exportSelectedOnly = false) => {
+    let dataToExport = leads;
+    if (exportSelectedOnly && selectedLeads.length > 0) {
+      dataToExport = leads.filter((l) => selectedLeads.includes(l.id));
+    }
+
+    if (!dataToExport || dataToExport.length === 0) {
+      alert("No leads found to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Lead Code", key: (r) => r.lead_code || `#${r.id}` },
+      { label: "Student Full Name", key: "full_name" },
+      { label: "Primary Mobile", key: "mobile" },
+      { label: "Alternate Mobile", key: "alternate_mobile" },
+      { label: "Email", key: "email" },
+      { label: "Interested Course", key: "interested_course" },
+      { label: "Preferred Centre", key: "preferred_centre" },
+      { label: "Lead Source", key: "source" },
+      { label: "Platform", key: "platform" },
+      { label: "Disposition / Status", key: "status" },
+      { label: "Priority", key: "priority" },
+      { label: "Assigned Counsellor", key: (r) => r.assigned_employee_name || r.assigned_to_name || "Unassigned" },
+      { label: "City", key: "city" },
+      { label: "State", key: "state" },
+      { label: "Captured Date", key: (r) => r.created_at ? new Date(r.created_at).toLocaleString("en-IN") : "" },
+      { label: "Remarks / Notes", key: "remarks" },
+    ];
+
+    exportToCSV(dataToExport, columns, exportSelectedOnly ? "selected_leads" : "crm_leads");
+  };
+
   return (
 
     <div className="lead-management-page">
@@ -442,6 +478,10 @@ const openAssignModal = () => {
         loading={loading}
 
         onRefresh={loadLeads}
+
+        onExport={() => handleExportLeads(false)}
+
+        onCreateLead={handleCreateLead}
 
       />
 
@@ -465,17 +505,17 @@ const openAssignModal = () => {
 
           <BulkActionBar
 
-    selectedLeads={selectedLeads}
+            selectedLeads={selectedLeads}
 
-    onAssign={openAssignModal}
+            onAssign={openAssignModal}
 
-    onExport={() => console.log("Export")}
+            onExport={() => handleExportLeads(true)}
 
-    onDelete={() => console.log("Delete")}
+            onDelete={() => handleDeleteClick(leads.find(l => selectedLeads.includes(l.id)))}
 
-    onClear={() => setSelectedLeads([])}
+            onClear={() => setSelectedLeads([])}
 
-/>
+          />
         )
 
       }

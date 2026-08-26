@@ -1,8 +1,9 @@
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Download } from "lucide-react";
 
 const CampaignHeader = ({
   loading = false,
   onRefresh,
+  onExport,
   onAdd,
 }) => {
   return (
@@ -25,6 +26,7 @@ const CampaignHeader = ({
           className="add-campaign-btn"
           onClick={onRefresh}
           disabled={loading}
+          title="Refresh Campaigns"
         >
           <RefreshCw
             size={18}
@@ -33,6 +35,18 @@ const CampaignHeader = ({
 
           Refresh
         </button>
+
+        {onExport && (
+          <button
+            className="add-campaign-btn"
+            onClick={onExport}
+            title="Export Campaigns to CSV"
+            style={{ background: "#F8FAFC", border: "1px solid #CBD5E1", color: "#1E293B" }}
+          >
+            <Download size={18} />
+            Export CSV
+          </button>
+        )}
 
         <button
           className="add-campaign-btn"

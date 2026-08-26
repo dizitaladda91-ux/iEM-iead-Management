@@ -4,11 +4,13 @@ import {
   RefreshCw,
   Plus,
   CalendarDays,
+  Download,
 } from "lucide-react";
 
 const LeadHeader = ({
   loading = false,
   onRefresh,
+  onExport,
   onCreateLead,
 }) => {
 
@@ -79,6 +81,7 @@ const LeadHeader = ({
             className="refresh-btn"
             onClick={onRefresh}
             disabled={loading}
+            title="Refresh Leads Data"
           >
 
             <RefreshCw
@@ -93,6 +96,17 @@ const LeadHeader = ({
             Refresh
 
           </button>
+
+          {onExport && (
+            <button
+              className="export-header-btn"
+              onClick={onExport}
+              title="Export Current Filtered Leads to CSV/Excel"
+            >
+              <Download size={17} />
+              Export CSV
+            </button>
+          )}
 
           <button
             className="create-btn"

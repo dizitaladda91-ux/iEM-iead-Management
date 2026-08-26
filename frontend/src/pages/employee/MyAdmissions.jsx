@@ -21,7 +21,8 @@ import {
   CreditCard,
   Building,
   User,
-  Sparkles
+  Sparkles,
+  Download,
 } from "lucide-react";
 import {
   getMyAdmissions,
@@ -29,6 +30,7 @@ import {
   addAdmissionPayment,
   getAdmissionDetails,
 } from "../../services/admissionService";
+import { exportToCSV } from "../../utils/exportCsv";
 import "./MyAdmissions.css";
 
 const MyAdmissions = () => {
@@ -222,6 +224,32 @@ const MyAdmissions = () => {
         (Number(a.pending_fee) > 0 && a.next_due_date && new Date(a.next_due_date) < new Date())
       ).length;
 
+  // Export My Admissions to CSV
+  const handleExportCSV = () => {
+    if (!safeAdmissions.length) {
+      alert("No admissions records available to export.");
+      return;
+    }
+
+    const columns = [
+      { label: "Admission ID", key: (r) => r.admission_number || `#${r.id}` },
+      { label: "Student Full Name", key: "student_name" },
+      { label: "Primary Mobile", key: "mobile" },
+      { label: "Email Address", key: "email" },
+      { label: "Enrolled Course", key: "course_name" },
+      { label: "Centre / Campus", key: (r) => r.centre || "Main Campus" },
+      { label: "Total Fee (INR)", key: (r) => Number(r.total_fee || 0) },
+      { label: "Paid Fee (INR)", key: (r) => Number(r.paid_fee || 0) },
+      { label: "Pending Balance (INR)", key: (r) => Number(r.pending_fee || 0) },
+      { label: "Fee Status", key: "fee_status" },
+      { label: "Next Installment Due Date", key: (r) => r.next_due_date ? String(r.next_due_date).slice(0, 10) : "N/A" },
+      { label: "Enrolled Date", key: (r) => r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "" },
+      { label: "Remarks", key: "remarks" },
+    ];
+
+    exportToCSV(safeAdmissions, columns, "my_student_admissions");
+  };
+
   return (
     <div className="my-admissions-container">
       {/* Header */}
@@ -235,6 +263,10 @@ const MyAdmissions = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="btn-refresh" onClick={handleExportCSV} title="Export My Admissions to CSV/Excel">
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
           <button className="btn-refresh" onClick={() => navigate("/employee/performance")} title="View My Performance & Conversion Scorecard">
             <TrendingUp size={16} />
             <span>My Performance</span>
