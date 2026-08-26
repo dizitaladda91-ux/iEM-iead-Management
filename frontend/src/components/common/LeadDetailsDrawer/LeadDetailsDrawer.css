@@ -640,6 +640,68 @@
   box-shadow: none;
 }
 
+/* ================= Enrolled Freeze & Lock Banners ================= */
+.enrolled-lock-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  line-height: 1.45;
+}
+
+.enrolled-lock-banner strong {
+  font-weight: 700;
+  color: #14532d;
+}
+
+.enrolled-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.drawer-input:disabled,
+.drawer-select:disabled,
+.drawer-textarea:disabled {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  border-color: #e2e8f0 !important;
+  opacity: 0.9;
+}
+
+.switcher-tab:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.fee-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
 /* ================= Responsive Queries ================= */
 @media (max-width: 850px) {
   .lead-drawer-panel {

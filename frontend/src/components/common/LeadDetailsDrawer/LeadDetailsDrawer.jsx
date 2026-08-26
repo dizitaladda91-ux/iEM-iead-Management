@@ -19,6 +19,8 @@ import {
   Save,
   MessageSquare,
   Sparkles,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import "./LeadDetailsDrawer.css";
 import {
@@ -77,6 +79,7 @@ const LeadDetailsDrawer = ({
   const { user } = useAuth();
   const effectiveId = leadId || lead?.id;
   const isReadOnly = mode === "readOnly" || (mode !== "edit" && user?.role === "ADMIN");
+  const isEnrolled = status === "ENROLLED" || lead?.status === "ENROLLED" || lead?.status === "ADMISSION_DONE";
 
   const [activeTab, setActiveTab] = useState("step1");
   const [loading, setLoading] = useState(false);
@@ -398,6 +401,11 @@ const LeadDetailsDrawer = ({
                 <span className={getStatusBadgeClass(status)}>
                   {status}
                 </span>
+                {isEnrolled && (
+                  <span className="enrolled-badge-pill" title="Student is officially enrolled. Core details are locked.">
+                    <Lock size={12} /> Enrolled & Locked
+                  </span>
+                )}
                 {lead?.source && (
                   <span className="lead-code-pill">
                     Source: {lead.source}
@@ -487,6 +495,15 @@ const LeadDetailsDrawer = ({
                     </h3>
                   </div>
 
+                  {isEnrolled && (
+                    <div className="enrolled-lock-banner">
+                      <Lock size={18} className="text-emerald-700 flex-shrink-0" />
+                      <div>
+                        <strong>Student Admission Confirmed:</strong> Personal details are locked to preserve academic records. To record or update fee installments, please go to <strong>STEP 3</strong> or the Admissions ledger.
+                      </div>
+                    </div>
+                  )}
+
                   <div className="drawer-grid-2">
                     <div className="drawer-form-group">
                       <label className="drawer-label">
@@ -498,6 +515,7 @@ const LeadDetailsDrawer = ({
                         placeholder="e.g. Rahul Sharma"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
 
@@ -511,6 +529,7 @@ const LeadDetailsDrawer = ({
                         placeholder="10-digit mobile number"
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
 
@@ -522,6 +541,7 @@ const LeadDetailsDrawer = ({
                         placeholder="Optional alternate contact"
                         value={alternateMobile}
                         onChange={(e) => setAlternateMobile(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
 
@@ -533,6 +553,7 @@ const LeadDetailsDrawer = ({
                         placeholder="student@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
 
@@ -544,6 +565,7 @@ const LeadDetailsDrawer = ({
                         placeholder="e.g. Kolkata, Patna, Delhi"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
 
@@ -555,6 +577,7 @@ const LeadDetailsDrawer = ({
                         placeholder="e.g. West Bengal, Bihar"
                         value={state}
                         onChange={(e) => setState(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
                   </div>
@@ -574,6 +597,7 @@ const LeadDetailsDrawer = ({
                         type="button"
                         className={`switcher-tab ${academicType === "school" ? "active" : ""}`}
                         onClick={() => setAcademicType("school")}
+                        disabled={isEnrolled || isReadOnly}
                       >
                         <School size={14} className="inline mr-1" /> School (10th/12th)
                       </button>
@@ -581,11 +605,21 @@ const LeadDetailsDrawer = ({
                         type="button"
                         className={`switcher-tab ${academicType === "college" ? "active" : ""}`}
                         onClick={() => setAcademicType("college")}
+                        disabled={isEnrolled || isReadOnly}
                       >
                         <Building size={14} className="inline mr-1" /> College / Grad
                       </button>
                     </div>
                   </div>
+
+                  {isEnrolled && (
+                    <div className="enrolled-lock-banner">
+                      <Lock size={18} className="text-emerald-700 flex-shrink-0" />
+                      <div>
+                        <strong>Academic Profile Locked:</strong> Academic and program preferences are frozen after enrollment.
+                      </div>
+                    </div>
+                  )}
 
                   <div className="drawer-grid-2 mb-6">
                     <div className="drawer-form-group">
@@ -596,6 +630,7 @@ const LeadDetailsDrawer = ({
                         placeholder="e.g. B.Tech CSE, MBA, BCA"
                         value={interestedCourse}
                         onChange={(e) => setInterestedCourse(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
                     <div className="drawer-form-group">
@@ -606,6 +641,7 @@ const LeadDetailsDrawer = ({
                         placeholder="e.g. Kolkata Main Campus"
                         value={preferredCentre}
                         onChange={(e) => setPreferredCentre(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       />
                     </div>
                   </div>
@@ -620,6 +656,7 @@ const LeadDetailsDrawer = ({
                           placeholder="Current or Last Attended School"
                           value={schoolName}
                           onChange={(e) => setSchoolName(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -631,6 +668,7 @@ const LeadDetailsDrawer = ({
                           placeholder="CBSE / ICSE / State"
                           value={tenthBoard}
                           onChange={(e) => setTenthBoard(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
                       <div className="drawer-form-group">
@@ -641,6 +679,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. 85%"
                           value={tenthMarks}
                           onChange={(e) => setTenthMarks(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
                       <div className="drawer-form-group">
@@ -651,6 +690,7 @@ const LeadDetailsDrawer = ({
                           placeholder="PCM / PCB / Commerce / Arts"
                           value={twelfthStream}
                           onChange={(e) => setTwelfthStream(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -662,6 +702,7 @@ const LeadDetailsDrawer = ({
                           placeholder="CBSE / ISC / State"
                           value={twelfthBoard}
                           onChange={(e) => setTwelfthBoard(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
                       <div className="drawer-form-group col-span-2">
@@ -672,6 +713,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. 88% or Appearing"
                           value={twelfthMarks}
                           onChange={(e) => setTwelfthMarks(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
                     </div>
@@ -685,6 +727,7 @@ const LeadDetailsDrawer = ({
                           placeholder="Name of Undergraduate Institution"
                           value={collegeName}
                           onChange={(e) => setCollegeName(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -696,6 +739,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. B.Sc, B.Com, B.Tech, BCA"
                           value={degree}
                           onChange={(e) => setDegree(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -707,6 +751,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. Computer Science, Finance"
                           value={branch}
                           onChange={(e) => setBranch(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -718,6 +763,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. 2024, 2025, 2026"
                           value={passingYear}
                           onChange={(e) => setPassingYear(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
 
@@ -729,6 +775,7 @@ const LeadDetailsDrawer = ({
                           placeholder="e.g. 8.4 CGPA or 78%"
                           value={collegeCgpa}
                           onChange={(e) => setCollegeCgpa(e.target.value)}
+                          disabled={isEnrolled || isReadOnly}
                         />
                       </div>
                     </div>
@@ -752,6 +799,15 @@ const LeadDetailsDrawer = ({
                     </div>
                   </div>
 
+                  {isEnrolled && (
+                    <div className="enrolled-lock-banner">
+                      <Lock size={18} className="text-emerald-700 flex-shrink-0" />
+                      <div>
+                        <strong>Admission Confirmed:</strong> Disposition is locked to <strong>ENROLLED</strong>. You can record further <strong>Fee Installments, Receipts, and Next Due Dates</strong> below.
+                      </div>
+                    </div>
+                  )}
+
                   <div className="drawer-grid-2">
                     <div className="drawer-form-group">
                       <label className="drawer-label">
@@ -761,6 +817,7 @@ const LeadDetailsDrawer = ({
                         className="drawer-select font-semibold text-blue-700"
                         value={status}
                         onChange={(e) => handleStatusSelect(e.target.value)}
+                        disabled={isEnrolled || isReadOnly}
                       >
                         <option value="INTERESTED">Interested</option>
                         <option value="FOLLOW_UP">Follow-up</option>
@@ -905,8 +962,13 @@ const LeadDetailsDrawer = ({
                   {/* Dynamic Status Case 4: ENROLLED / ADMISSION_DONE */}
                   {(status === "ENROLLED" || status === "ADMISSION_DONE") && (
                     <div className="dynamic-status-card enrolled">
-                      <div className="dynamic-status-title text-emerald-800">
-                        <CheckCircle2 size={18} /> Confirmed Enrollment & Course Fee Breakdown
+                      <div className="dynamic-status-title text-emerald-800 flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 size={18} /> Confirmed Enrollment & Course Fee Breakdown
+                        </span>
+                        <span className="fee-active-badge">
+                          ✏️ Fee & Installments (Editable)
+                        </span>
                       </div>
                       <div className="drawer-grid-3">
                         <div className="drawer-form-group">
