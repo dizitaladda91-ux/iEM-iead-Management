@@ -1,13 +1,17 @@
 import app from "./app.js";
 import pool from "./config/db.js";
 import logger from "./utils/logger.js";
+import { initDatabaseSchema } from "./config/dbInit.js";
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-
+const server = app.listen(PORT, async () => {
   logger.info(`🚀 Server running on port ${PORT}`);
-
+  try {
+    await initDatabaseSchema();
+  } catch (err) {
+    logger.error("DB init warning:", err.message);
+  }
 });
 
 /**
