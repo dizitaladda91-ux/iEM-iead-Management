@@ -198,6 +198,30 @@ const MyAdmissions = () => {
     return item.fee_status === statusFilter;
   });
 
+  // Dynamic Real-time Calculations (server stats + fallback from admissions array)
+  const totalAdmissionsCount = Number(stats.total_admissions) > 0
+    ? Number(stats.total_admissions)
+    : safeAdmissions.length;
+
+  const totalRevenueAmount = Number(stats.total_revenue) > 0
+    ? Number(stats.total_revenue)
+    : safeAdmissions.reduce((sum, a) => sum + Number(a.total_fee || 0), 0);
+
+  const totalCollectedAmount = Number(stats.total_collected) > 0
+    ? Number(stats.total_collected)
+    : safeAdmissions.reduce((sum, a) => sum + Number(a.paid_fee || 0), 0);
+
+  const totalPendingAmount = Number(stats.total_pending) > 0
+    ? Number(stats.total_pending)
+    : safeAdmissions.reduce((sum, a) => sum + Number(a.pending_fee || 0), 0);
+
+  const overdueCount = Number(stats.overdue_count) > 0
+    ? Number(stats.overdue_count)
+    : safeAdmissions.filter((a) =>
+        a.fee_status === "OVERDUE" ||
+        (Number(a.pending_fee) > 0 && a.next_due_date && new Date(a.next_due_date) < new Date())
+      ).length;
+
   return (
     <div className="my-admissions-container">
       {/* Header */}
@@ -222,31 +246,40 @@ const MyAdmissions = () => {
         </div>
       </div>
 
-      {/* Financial Analytics Summary Grid */}
+      {/* Financial Analytics Summary Grid - All 5 Cards Interactive & Connected */}
       <div className="adm-stats-grid">
         <div
           className={`adm-stat-card ${statusFilter === "ALL" ? "active-filter" : ""}`}
           onClick={() => setStatusFilter("ALL")}
           role="button"
           tabIndex={0}
+          style={{ cursor: "pointer" }}
+          title="Click to view all student admissions"
         >
           <div className="stat-icon-wrap blue">
             <GraduationCap size={22} />
           </div>
           <div>
             <div className="stat-label">My Total Admissions</div>
-            <div className="stat-val">{stats.total_admissions || safeAdmissions.length}</div>
+            <div className="stat-val">{totalAdmissionsCount}</div>
           </div>
         </div>
 
-        <div className="adm-stat-card">
+        <div
+          className={`adm-stat-card ${statusFilter === "ALL" ? "active-filter" : ""}`}
+          onClick={() => setStatusFilter("ALL")}
+          role="button"
+          tabIndex={0}
+          style={{ cursor: "pointer" }}
+          title="Click to view full course enrollments"
+        >
           <div className="stat-icon-wrap purple">
             <TrendingUp size={22} />
           </div>
           <div>
             <div className="stat-label">Total Course Value</div>
             <div className="stat-val">
-              ?{Number(stats.total_revenue || 0).toLocaleString("en-IN")}
+              ₹{totalRevenueAmount.toLocaleString("en-IN")}
             </div>
           </div>
         </div>
@@ -256,6 +289,8 @@ const MyAdmissions = () => {
           onClick={() => setStatusFilter("FULLY_PAID")}
           role="button"
           tabIndex={0}
+          style={{ cursor: "pointer" }}
+          title="Click to filter Fully Paid student fees"
         >
           <div className="stat-icon-wrap green">
             <IndianRupee size={22} />
@@ -263,7 +298,7 @@ const MyAdmissions = () => {
           <div>
             <div className="stat-label">Fees Collected</div>
             <div className="stat-val green-text">
-              ?{Number(stats.total_collected || 0).toLocaleString("en-IN")}
+              ₹{totalCollectedAmount.toLocaleString("en-IN")}
             </div>
           </div>
         </div>
@@ -273,6 +308,8 @@ const MyAdmissions = () => {
           onClick={() => setStatusFilter("PARTIAL")}
           role="button"
           tabIndex={0}
+          style={{ cursor: "pointer" }}
+          title="Click to filter Pending Installments"
         >
           <div className="stat-icon-wrap amber">
             <Clock size={22} />
@@ -280,7 +317,7 @@ const MyAdmissions = () => {
           <div>
             <div className="stat-label">Pending Dues</div>
             <div className="stat-val amber-text">
-              ?{Number(stats.total_pending || 0).toLocaleString("en-IN")}
+              ₹{totalPendingAmount.toLocaleString("en-IN")}
             </div>
           </div>
         </div>
@@ -290,6 +327,8 @@ const MyAdmissions = () => {
           onClick={() => setStatusFilter("OVERDUE")}
           role="button"
           tabIndex={0}
+          style={{ cursor: "pointer" }}
+          title="Click to filter Overdue Student Installments"
         >
           <div className="stat-icon-wrap red">
             <AlertCircle size={22} />
@@ -297,7 +336,7 @@ const MyAdmissions = () => {
           <div>
             <div className="stat-label">Overdue Installments</div>
             <div className="stat-val red-text">
-              {stats.overdue_count || safeAdmissions.filter((a) => a.fee_status === "OVERDUE").length}
+              {overdueCount}
             </div>
           </div>
         </div>

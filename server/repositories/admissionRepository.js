@@ -175,7 +175,7 @@ export const getCounsellorAdmissionsRepository = async (employeeId, search = "")
 /**
  * Get overall financial stats
  */
-export const getAdmissionStatsRepository = async (counsellorId = null) => {
+export const getAdmissionStatsRepository = async (counsellorId = null, userId = null) => {
   let query = `
     SELECT 
       COUNT(*) AS total_admissions,
@@ -191,9 +191,17 @@ export const getAdmissionStatsRepository = async (counsellorId = null) => {
   `;
   const values = [];
 
-  if (counsellorId) {
-    query += ` AND assigned_counsellor_id = $1`;
-    values.push(counsellorId);
+  if (counsellorId || userId) {
+    if (counsellorId && userId) {
+      query += ` AND (assigned_counsellor_id = $1 OR created_by = $2)`;
+      values.push(counsellorId, userId);
+    } else if (counsellorId) {
+      query += ` AND (assigned_counsellor_id = $1 OR created_by = (SELECT user_id FROM employees WHERE id = $1))`;
+      values.push(counsellorId);
+    } else {
+      query += ` AND created_by = $1`;
+      values.push(userId);
+    }
   }
 
   const { rows } = await pool.query(query, values);

@@ -99,17 +99,19 @@ export const getCounsellorAdmissionsService = async (currentUser, search = "") =
  */
 export const getAdmissionStatsService = async (currentUser) => {
   let counsellorId = null;
-  if (currentUser.role === "COUNSELLOR") {
+  const role = String(currentUser.role || "").toUpperCase();
+  if (role === "COUNSELLOR" || role === "EMPLOYEE") {
     const client = await pool.connect();
     try {
-      const { rows } = await client.query("SELECT id FROM employees WHERE user_id = $1;", [currentUser.id]);
+      const { rows } = await client.query("SELECT id FROM employees WHERE user_id = $1 OR email = $2;", [currentUser.id, currentUser.email]);
       if (rows.length > 0) counsellorId = rows[0].id;
     } finally {
       client.release();
     }
+    return await getAdmissionStatsRepository(counsellorId, currentUser.id);
   }
 
-  return await getAdmissionStatsRepository(counsellorId);
+  return await getAdmissionStatsRepository();
 };
 
 /**
