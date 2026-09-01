@@ -55,32 +55,33 @@ validateEnv();
  */
 app.use(cors({
   origin(origin, callback) {
-    // Requests without an Origin header (curl, health checks, server-to-server)
-    if (!origin || process.env.NODE_ENV !== "production") {
+    // Requests without an Origin header (server-to-server, curl, health checks)
+    if (!origin) {
       return callback(null, true);
     }
 
-    // Allow localhost & local live previews (127.0.0.1)
+    // In local development / test, allow any localhost or preview
+    if (process.env.NODE_ENV !== "production") {
+      return callback(null, origin);
+    }
+
+    // Allow localhost & 127.0.0.1
     if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-      return callback(null, true);
+      return callback(null, origin);
     }
 
-    // Allow configured client origins
-    if (allowedOrigins.length === 0 || allowedOrigins.includes("*")) {
-      return callback(null, true);
-    }
-
+    // Allow explicitly configured client origins from CLIENT_URL
     const cleanOrigin = origin.replace(/\/$/, "");
-    if (allowedOrigins.includes(cleanOrigin)) {
-      return callback(null, true);
+    if (allowedOrigins.includes("*") || allowedOrigins.includes(cleanOrigin)) {
+      return callback(null, origin);
     }
 
-    // Permissive callback so public website forms and embeds can submit leads
-    return callback(null, true);
+    // Allow public website forms / lead capture embeds to submit
+    return callback(null, origin);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "X-Request-Id"],
 }));
 
 app.use(express.json());

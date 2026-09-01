@@ -76,11 +76,18 @@ export const registerUserService = async (
         10
       );
 
+    // Prevent privilege escalation: public registration cannot create ADMIN or MANAGER roles
+    const allowedPublicRoles = ["COUNSELLOR", "EMPLOYEE"];
+    const assignedRole = allowedPublicRoles.includes(userData.role?.toUpperCase())
+      ? userData.role.toUpperCase()
+      : "COUNSELLOR";
+
     const user =
       await createUserRepository(
         client,
         {
           ...userData,
+          role: assignedRole,
           password: hashedPassword,
         }
       );
@@ -490,11 +497,11 @@ export const forgotPasswordService = async (
     await client.query("COMMIT");
 
     return {
-
-      resetToken: plainToken,
-
-      expiresAt,
-
+      message:
+        "If an account exists, a password reset link has been sent.",
+      ...(process.env.NODE_ENV === "test"
+        ? { resetToken: plainToken, expiresAt }
+        : {}),
     };
 
   } catch (error) {

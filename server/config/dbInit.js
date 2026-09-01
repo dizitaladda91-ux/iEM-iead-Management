@@ -228,23 +228,22 @@ export async function initDatabaseSchema() {
         );
       `);
 
-      // Seed initial Admin & Counsellor accounts
+      // Seed initial Admin & Counsellor accounts (clean generic seeds)
       await pool.query(`
         INSERT INTO users (id, full_name, email, password, role, is_active, is_deleted, email_verified) VALUES
-          (1, 'Divyanshu Mishra', 'divyanshu@gmail.com', '$2b$10$FdjvHaE0Zin7vtvsbFuLWuRVF7TZJjnKmwuDl/XTc16F6gC9aphoe', 'ADMIN', TRUE, FALSE, TRUE),
-          (12, 'Divyanshu Mishra', 'divyanshu001@gmail.com', '$2b$10$Lrqdo1an.uDa35M6l3Fj8.xKRME4WMcrR.4bsSyVlulM5Az/02A9i', 'ADMIN', TRUE, FALSE, TRUE),
-          (14, 'Rohit Kumar', 'rohit.kumars@iemlms.com', '$2b$10$0CkPoAU.v8LSO3eRVpvtaO8L6WVMGe9oY/q2z9KVUQ5zU62ahZaxK', 'COUNSELLOR', TRUE, FALSE, TRUE)
-        ON CONFLICT DO NOTHING;
+          (1, 'System Administrator', 'admin@iemlms.com', '$2b$10$FdjvHaE0Zin7vtvsbFuLWuRVF7TZJjnKmwuDl/XTc16F6gC9aphoe', 'ADMIN', TRUE, FALSE, TRUE),
+          (2, 'Admissions Counsellor', 'counsellor@iemlms.com', '$2b$10$0CkPoAU.v8LSO3eRVpvtaO8L6WVMGe9oY/q2z9KVUQ5zU62ahZaxK', 'COUNSELLOR', TRUE, FALSE, TRUE)
+        ON CONFLICT (id) DO NOTHING;
 
         INSERT INTO departments (id, department_name, description, status)
         VALUES (1, 'Admissions & Sales', 'Admissions & Student Counselling', TRUE)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT (id) DO NOTHING;
 
         INSERT INTO employees (id, user_id, employee_code, full_name, email, mobile, department_id, designation, role, status)
         VALUES 
-          (1, 14, 'EMP000005', 'Rohit Kumar', 'rohit.kumars@iemlms.com', '9876543201', 1, 'Senior Counsellor', 'COUNSELLOR', 'ACTIVE'),
-          (2, 12, 'EMP000001', 'Divyanshu Mishra', 'divyanshu001@gmail.com', '9876543200', 1, 'Director', 'ADMIN', 'ACTIVE')
-        ON CONFLICT DO NOTHING;
+          (1, 1, 'EMP000001', 'System Administrator', 'admin@iemlms.com', '9876543200', 1, 'Director', 'ADMIN', 'ACTIVE'),
+          (2, 2, 'EMP000002', 'Admissions Counsellor', 'counsellor@iemlms.com', '9876543201', 1, 'Senior Counsellor', 'COUNSELLOR', 'ACTIVE')
+        ON CONFLICT (id) DO NOTHING;
 
         INSERT INTO lead_sources (name, description, is_active) VALUES
           ('Website', 'Captured via website form', TRUE),
@@ -252,10 +251,10 @@ export async function initDatabaseSchema() {
           ('Meta', 'Meta / Facebook campaigns', TRUE),
           ('Referral', 'Referred by partner or student', TRUE),
           ('Walk In', 'Direct walk in enquiry', TRUE)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT (name) DO NOTHING;
       `);
 
-      console.log("? Core database tables and seed users initialized successfully.");
+      console.log("✅ Core database tables and seed users initialized successfully.");
     }
 
     // 2. Ensure "admissions" & "admission_payments" tables exist
@@ -302,8 +301,9 @@ export async function initDatabaseSchema() {
       `);
     } catch {}
 
-    console.log("? Database schema check passed.");
+    console.log("✅ Database schema check passed.");
   } catch (error) {
-    console.error("? Database initialization error:", error.message);
+    console.error("❌ Database initialization error:", error.message);
+    throw error;
   }
 }

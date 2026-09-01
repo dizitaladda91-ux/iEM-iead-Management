@@ -231,12 +231,9 @@ CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets (reset_t
 -- Inserts are idempotent, so this file can be run more than once.
 
 INSERT INTO users (id, full_name, email, password, role, created_at, is_active, is_deleted, last_login, updated_at, email_verified) VALUES
-  (1, 'Divyanshu Mishra', 'divyanshu@gmail.com', '$2b$10$FdjvHaE0Zin7vtvsbFuLWuRVF7TZJjnKmwuDl/XTc16F6gC9aphoe', 'ADMIN', '2026-06-27T11:15:30.995Z', TRUE, FALSE, NULL, '2026-07-01T03:17:05.579Z', FALSE),
-  (10, 'Rahul Sharma', 'rahul@gmail.com', '$2b$10$TG503Ww/iM4K8wnRFrWQ5.o9IldJVU9oKEKQSv5Tvy0cJLhw1QkJK', 'COUNSELLOR', '2026-06-28T17:18:48.259Z', TRUE, FALSE, NULL, '2026-07-01T03:17:05.579Z', FALSE),
-  (12, 'Divyanshu Mishra', 'divyanshu001@gmail.com', '$2b$10$Lrqdo1an.uDa35M6l3Fj8.xKRME4WMcrR.4bsSyVlulM5Az/02A9i', 'ADMIN', '2026-07-01T05:09:10.141Z', TRUE, FALSE, '2026-07-24T08:22:22.986Z', '2026-07-24T08:22:22.986Z', TRUE),
-  (13, 'Rohit Kumar', 'rohit.kumar@iemlms.com', '$2b$10$dw7fkXODcen1ZOnbXM7lxeie4/3RzpxDV4pkmGIWW4tVeVDRn.koy', 'COUNSELLOR', '2026-07-22T05:36:01.558Z', TRUE, FALSE, '2026-07-23T14:28:20.611Z', '2026-07-23T14:28:20.611Z', FALSE),
-  (14, 'Rohit Kumar', 'rohit.kumars@iemlms.com', '$2b$10$0CkPoAU.v8LSO3eRVpvtaO8L6WVMGe9oY/q2z9KVUQ5zU62ahZaxK', 'COUNSELLOR', '2026-07-23T07:22:15.562Z', TRUE, FALSE, '2026-07-24T09:01:27.773Z', '2026-07-24T09:01:27.773Z', FALSE)
-ON CONFLICT DO NOTHING;
+  (1, 'System Administrator', 'admin@iemlms.com', '$2b$10$FdjvHaE0Zin7vtvsbFuLWuRVF7TZJjnKmwuDl/XTc16F6gC9aphoe', 'ADMIN', '2026-06-27T11:15:30.995Z', TRUE, FALSE, NULL, '2026-07-01T03:17:05.579Z', TRUE),
+  (2, 'Admissions Counsellor', 'counsellor@iemlms.com', '$2b$10$0CkPoAU.v8LSO3eRVpvtaO8L6WVMGe9oY/q2z9KVUQ5zU62ahZaxK', 'COUNSELLOR', '2026-07-23T07:22:15.562Z', TRUE, FALSE, NULL, '2026-07-24T09:01:27.773Z', TRUE)
+ON CONFLICT (id) DO NOTHING;
 
 -- Lead Sources table
 CREATE TABLE IF NOT EXISTS lead_sources (
@@ -256,13 +253,16 @@ INSERT INTO lead_sources (name, description, is_active, created_at) VALUES
   ('Google Ads', 'Paid search campaigns', TRUE, '2026-06-27T11:00:00.000Z'),
   ('Meta', 'Meta / Facebook campaigns', TRUE, '2026-06-27T11:00:00.000Z'),
   ('Referral', 'Referred by partner or student', TRUE, '2026-06-27T11:00:00.000Z')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO departments (id, department_name, description, status, created_at, updated_at)
-VALUES (1, 'Sales', 'Sales Department', TRUE, '2026-06-28T06:33:25.689Z', '2026-06-28T06:33:25.689Z') ON CONFLICT DO NOTHING;
+VALUES (1, 'Admissions & Sales', 'Admissions & Student Counselling', TRUE, '2026-06-28T06:33:25.689Z', '2026-06-28T06:33:25.689Z') ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO employees (id, user_id, employee_code, full_name, email, mobile, department_id, designation, role, employment_type, status, joining_date, date_of_birth, gender, profile_image, address, emergency_contact_name, emergency_contact, created_by, updated_by, deleted_by, created_at, updated_at, deleted_at, is_deleted)
-VALUES (1, 14, 'EMP000005', 'Rohit Kumar', 'rohit.kumars@iemlms.com', '9876543201', 1, 'Team Leader', 'COUNSELLOR', 'FULL_TIME', 'ACTIVE', '2026-07-21', '1998-08-15', 'MALE', NULL, 'Delhi', 'Suresh Kumar', '9876501234', 12, 12, NULL, '2026-07-23T07:22:15.562Z', '2026-07-23T08:06:34.602Z', NULL, FALSE) ON CONFLICT DO NOTHING;
+VALUES 
+  (1, 1, 'EMP000001', 'System Administrator', 'admin@iemlms.com', '9876543200', 1, 'Director', 'ADMIN', 'FULL_TIME', 'ACTIVE', '2026-07-01', '1990-01-01', 'MALE', NULL, 'New Delhi', 'Admin Office', '9876500000', 1, 1, NULL, '2026-07-01T05:09:10.141Z', '2026-07-24T08:22:22.986Z', NULL, FALSE),
+  (2, 2, 'EMP000002', 'Admissions Counsellor', 'counsellor@iemlms.com', '9876543201', 1, 'Senior Counsellor', 'COUNSELLOR', 'FULL_TIME', 'ACTIVE', '2026-07-21', '1995-05-15', 'MALE', NULL, 'New Delhi', 'Counselling Desk', '9876500001', 1, 1, NULL, '2026-07-23T07:22:15.562Z', '2026-07-23T08:06:34.602Z', NULL, FALSE)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO campaigns (id, campaign_code, campaign_name, platform, source, budget, landing_page_url, description, start_date, end_date, status, created_by, updated_by, created_at, updated_at, is_deleted) VALUES
   (1, 'CAM000001', 'BCA Admission 2027 Updated', 'GOOGLE', 'Google Search Ads', 75000.00, 'https://iem.edu.in/admission', 'Updated Campaign', '2026-07-02', '2026-09-15', 'ACTIVE', 12, 12, '2026-07-02T09:10:42.724Z', '2026-07-14T16:07:56.423Z', TRUE),

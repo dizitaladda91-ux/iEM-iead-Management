@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  backend-test:
+    name: Backend Tests & Validation
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -15,7 +16,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -38,7 +39,7 @@ jobs:
       JWT_REFRESH_EXPIRES_IN: 7d
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -48,20 +49,44 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'server/package-lock.json'
 
-      - name: Install dependencies
+      - name: Install Backend Dependencies
         run: npm ci
 
-      - name: Wait for Postgres
+      - name: Wait for Postgres Readiness
         run: |
-          for i in {1..10}; do
+          for i in {1..15}; do
             pg_isready -h 127.0.0.1 -p 5432 && break || sleep 2;
           done
 
-      - name: Run DB init
-        run: npm run db:init || true
+      - name: Run Database Initializer (Enforce strict migration)
+        run: npm run db:init
 
-      - name: Seed test DB
-        run: npm run db:seed:test || true
+      - name: Seed Test Database
+        run: npm run db:seed:test
 
-      - name: Run CI (lint + tests)
-        run: npm run ci
+      - name: Run Backend Tests
+        run: npm test
+
+  frontend-build:
+    name: Frontend Build & Compilation Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Verify Frontend Production Build
+        run: npm run build

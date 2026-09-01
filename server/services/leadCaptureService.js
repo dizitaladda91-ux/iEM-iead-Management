@@ -70,24 +70,41 @@ export const capturePublicLeadService = async (
      */
 
     if (existingLead) {
+      // Preserve critical CRM fields from being wiped by public form submissions
+      const mergedLeadData = {
+        ...existingLead,
+        full_name: payload.full_name || existingLead.full_name,
+        email: payload.email || existingLead.email,
+        mobile: payload.mobile || existingLead.mobile,
+        alternate_mobile: payload.alternate_mobile || existingLead.alternate_mobile,
+        city: payload.city || existingLead.city,
+        state: payload.state || existingLead.state,
+        interested_course: payload.interested_course || existingLead.interested_course,
+        preferred_centre: payload.preferred_centre || existingLead.preferred_centre,
+        campaign_id: payload.campaign_id || existingLead.campaign_id,
+        // STRICTLY PRESERVE internal workflow status, assignment, and notes
+        status: existingLead.status || "NEW",
+        assigned_to: existingLead.assigned_to,
+        priority: existingLead.priority || "MEDIUM",
+        feedback: existingLead.feedback,
+        remarks: existingLead.remarks,
+        updated_by: null,
+      };
+
       const updatedLead =
         await updateExistingLeadRepository(
           client,
           existingLead.id,
-          {
-            ...existingLead,
-            ...payload,
-            updated_by: null,
-          }
+          mergedLeadData
         );
 
       await createLeadActivityRepository(
         client,
         {
           lead_id: existingLead.id,
-          activity: "LEAD_UPDATED",
+          activity: "LEAD_RESUBMITTED",
           description:
-            "Existing lead updated from public source.",
+            `Lead re-submitted enquiry from ${payload.source || "Website"}. Existing status (${existingLead.status}) and counsellor assignment preserved.`,
           performed_by: null,
         }
       );

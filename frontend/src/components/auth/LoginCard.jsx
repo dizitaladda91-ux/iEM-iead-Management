@@ -7,7 +7,7 @@ const LoginCard = () => {
     <div className="auth-card">
       <div className="auth-card__inner">
         <div className="auth-card__logo">
-          <img src={logo} alt="IEM LMS" />
+          <img src={logo} alt="IEM LMS" width="44" height="44" />
         </div>
 
         <div className="auth-card__title">

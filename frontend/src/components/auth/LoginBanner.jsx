@@ -20,7 +20,7 @@ const LoginBanner = () => {
       <div className="auth-banner__top">
         <div className="auth-brand">
           <div className="auth-brand__logo">
-            <img src={logo} alt="IEM LMS" />
+            <img src={logo} alt="IEM LMS" width="36" height="36" />
           </div>
           <div className="auth-brand__text">
             <h1>IEM</h1>
