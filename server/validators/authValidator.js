@@ -139,3 +139,25 @@ export const refreshTokenValidator = [
 
 ];
 
+export const directResetPasswordValidator = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required.")
+    .isEmail()
+    .withMessage("Please enter a valid email address."),
+
+  body("newPassword")
+    .custom((value, { req }) => {
+      const pass = req.body.newPassword || req.body.password;
+      if (!pass || String(pass).trim() === "") {
+        throw new Error("New password is required.");
+      }
+      if (String(pass).length < 6) {
+        throw new Error("Password must be at least 6 characters.");
+      }
+      req.body.newPassword = pass;
+      return true;
+    }),
+];
+

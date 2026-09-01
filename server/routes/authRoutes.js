@@ -10,6 +10,7 @@ import {
   changePassword,
   forgotPassword,
   resetPassword,
+  directResetPassword,
   refreshToken,
   logout,
   verifyEmail,
@@ -25,6 +26,7 @@ import {
   changePasswordValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
+  directResetPasswordValidator,
   refreshTokenValidator,
 } from "../validators/authValidator.js";
 
@@ -63,6 +65,13 @@ router.post(
   resetPasswordValidator,
   validate,
   resetPassword
+);
+
+router.post(
+  "/direct-reset-password",
+  directResetPasswordValidator,
+  validate,
+  directResetPassword
 );
 
 router.post(

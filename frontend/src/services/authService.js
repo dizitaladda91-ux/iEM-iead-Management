@@ -43,6 +43,14 @@ export const changePassword = async (payload) => {
     return response.data;
 };
 
+export const directResetPassword = async (payload) => {
+    const response = await axiosInstance.post(
+        "/auth/direct-reset-password",
+        payload
+    );
+    return response.data;
+};
+
 export const updateUserProfile = async (payload) => {
     try {
         const response = await axiosInstance.patch(

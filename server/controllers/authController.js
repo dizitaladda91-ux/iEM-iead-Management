@@ -15,6 +15,7 @@ import {
 import {
   forgotPasswordService,
   resetPasswordService,
+  directResetPasswordService,
 } from "../services/authService.js";
 
 import {
@@ -403,5 +404,30 @@ export const verifyEmail = asyncHandler(
 
     }
 
+  }
+);
+
+/**
+ * =====================================================
+ * Direct Reset Password Controller
+ * =====================================================
+ */
+export const directResetPassword = asyncHandler(
+  async (req, res) => {
+    const { email, newPassword, password } = req.body;
+    const targetPassword = newPassword || password;
+
+    const result = await directResetPasswordService(
+      email,
+      targetPassword
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        result,
+        result.message || "Password updated successfully."
+      )
+    );
   }
 );

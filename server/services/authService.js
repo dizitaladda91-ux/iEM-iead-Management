@@ -826,3 +826,54 @@ async (
   };
 
 };
+
+/**
+ * =====================================================
+ * Direct Reset Password by Email
+ * =====================================================
+ */
+export const directResetPasswordService = async (
+  email,
+  newPassword
+) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const user = await findUserByEmailRepository(email?.toLowerCase()?.trim());
+    if (!user) {
+      throw new ApiError(
+        404,
+        "No account found with this email address."
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const updatedUser = await updatePasswordRepository(
+      client,
+      user.id,
+      hashedPassword
+    );
+
+    // Delete any pending password reset requests for this user
+    await deleteUserPasswordResetRepository(client, user.id);
+
+    await client.query("COMMIT");
+
+    return {
+      success: true,
+      message: "Password updated successfully! You can now log in with your new password.",
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        full_name: updatedUser.full_name,
+      },
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
