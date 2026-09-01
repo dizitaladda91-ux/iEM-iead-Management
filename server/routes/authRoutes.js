@@ -108,7 +108,23 @@ router.post(
   updateProfile
 );
 
+router.put(
+  "/change-password",
+  authMiddleware,
+  changePasswordValidator,
+  validate,
+  changePassword
+);
+
 router.patch(
+  "/change-password",
+  authMiddleware,
+  changePasswordValidator,
+  validate,
+  changePassword
+);
+
+router.post(
   "/change-password",
   authMiddleware,
   changePasswordValidator,
