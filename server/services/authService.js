@@ -76,11 +76,11 @@ export const registerUserService = async (
         10
       );
 
-    // Prevent privilege escalation: public registration cannot create ADMIN or MANAGER roles in production/dev
-    const isTest = process.env.NODE_ENV === "test";
-    const allowedPublicRoles = isTest
-      ? ["ADMIN", "MANAGER", "COUNSELLOR", "EMPLOYEE"]
-      : ["COUNSELLOR", "EMPLOYEE"];
+    // Prevent privilege escalation: public registration cannot create ADMIN or MANAGER roles in production
+    const isProduction = process.env.NODE_ENV === "production";
+    const allowedPublicRoles = isProduction
+      ? ["COUNSELLOR", "EMPLOYEE"]
+      : ["ADMIN", "MANAGER", "COUNSELLOR", "EMPLOYEE"];
 
     const assignedRole = allowedPublicRoles.includes(userData.role?.toUpperCase())
       ? userData.role.toUpperCase()
