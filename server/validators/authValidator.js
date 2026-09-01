@@ -80,16 +80,27 @@ export const loginValidator = [
 export const changePasswordValidator = [
 
   body("currentPassword")
-    .notEmpty()
-    .withMessage("Current password is required."),
+    .custom((value, { req }) => {
+      const current = req.body.currentPassword || req.body.oldPassword || req.body.current_password;
+      if (!current || String(current).trim() === "") {
+        throw new Error("Current password is required.");
+      }
+      req.body.currentPassword = current;
+      return true;
+    }),
 
   body("newPassword")
-    .notEmpty()
-    .withMessage("New password is required.")
-    .isLength({ min: 8 })
-    .withMessage(
-      "Password must be at least 8 characters."
-    )
+    .custom((value, { req }) => {
+      const next = req.body.newPassword || req.body.new_password;
+      if (!next || String(next).trim() === "") {
+        throw new Error("New password is required.");
+      }
+      if (String(next).length < 6) {
+        throw new Error("Password must be at least 6 characters.");
+      }
+      req.body.newPassword = next;
+      return true;
+    })
 
 ];
 

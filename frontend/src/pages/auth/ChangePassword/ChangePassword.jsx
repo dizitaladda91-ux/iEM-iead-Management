@@ -47,11 +47,9 @@ const ChangePassword = () => {
       setLoading(true);
 
       const response = await changePassword({
-
+        currentPassword: formData.oldPassword,
         oldPassword: formData.oldPassword,
-
         newPassword: formData.newPassword,
-
       });
 
       toast.success(response.message);

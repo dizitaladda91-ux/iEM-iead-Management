@@ -138,10 +138,14 @@ export const updateProfile = asyncHandler(
 export const changePassword = asyncHandler(
   async (req, res) => {
 
-    const {
-      currentPassword,
-      newPassword,
-    } = req.body;
+    const currentPassword =
+      req.body.currentPassword ||
+      req.body.oldPassword ||
+      req.body.current_password;
+
+    const newPassword =
+      req.body.newPassword ||
+      req.body.new_password;
 
     const result =
       await changePasswordService(
