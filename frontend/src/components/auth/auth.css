@@ -341,54 +341,72 @@
   font-size: 0.9rem;
 }
 
+.auth-form__remember,
 .auth-checkbox {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   user-select: none;
+  font-size: 0.92rem;
+  color: #475569;
 }
 
+.auth-form__remember input,
 .auth-checkbox input {
   width: 16px;
   height: 16px;
   accent-color: #2563eb;
+  cursor: pointer;
 }
 
+.auth-form__link,
 .auth-link {
+  border: none;
+  background: transparent;
   color: #2563eb;
-  text-decoration: none;
+  font-size: 0.92rem;
   font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
   transition: color 0.2s ease;
 }
 
+.auth-form__link:hover,
 .auth-link:hover {
   color: #1d4ed8;
   text-decoration: underline;
 }
 
+.auth-button,
 .auth-submit-btn {
+  width: 100%;
   height: 56px;
   border: none;
   border-radius: 16px;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  font-size: 1rem;
+  color: #ffffff !important;
+  font-size: 1.05rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
 }
 
+.auth-button:hover,
 .auth-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 36px rgba(37, 99, 235, 0.36);
+  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.38);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }
 
+.auth-button:disabled,
 .auth-submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -399,11 +417,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 6px 0;
+  margin: 8px 0;
   color: #94a3b8;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
 .auth-divider::before,
@@ -414,11 +433,30 @@
   background: #e2e8f0;
 }
 
+.auth-footer {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.auth-footer p {
+  margin: 3px 0;
+  color: #64748b;
+}
+
 .auth-footer-text {
   text-align: center;
   color: #64748b;
   font-size: 0.94rem;
   margin-top: 6px;
+}
+
+.auth-error {
+  margin: 6px 0 0 4px;
+  font-size: 0.82rem;
+  color: #dc2626;
+  font-weight: 500;
 }
 
 .auth-error-banner {
