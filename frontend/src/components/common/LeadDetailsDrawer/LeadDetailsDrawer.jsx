@@ -78,8 +78,6 @@ const LeadDetailsDrawer = ({
 }) => {
   const { user } = useAuth();
   const effectiveId = leadId || lead?.id;
-  const isReadOnly = mode === "readOnly" || (mode !== "edit" && user?.role === "ADMIN");
-  const isEnrolled = status === "ENROLLED" || lead?.status === "ENROLLED" || lead?.status === "ADMISSION_DONE";
 
   const [activeTab, setActiveTab] = useState("step1");
   const [loading, setLoading] = useState(false);
@@ -139,6 +137,9 @@ const LeadDetailsDrawer = ({
   const [feePaid, setFeePaid] = useState("");
   const [receiptNumber, setReceiptNumber] = useState("");
   const [admissionNextDueDate, setAdmissionNextDueDate] = useState("");
+
+  const isReadOnly = mode === "readOnly" || (mode !== "edit" && user?.role === "ADMIN");
+  const isEnrolled = status === "ENROLLED" || lead?.status === "ENROLLED" || lead?.status === "ADMISSION_DONE";
 
   // Load Lead details
   const loadLeadData = useCallback(async () => {
