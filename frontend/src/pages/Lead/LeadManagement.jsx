@@ -341,6 +341,19 @@ const handleViewLead = (lead) => {
 
 /*
 =====================================
+Create Lead (Open Drawer / Form)
+=====================================
+*/
+const handleCreateLead = () => {
+
+  setSelectedLead(null);
+
+  setDrawerOpen(true);
+
+};
+
+/*
+=====================================
 Close Drawer
 =====================================
 */
