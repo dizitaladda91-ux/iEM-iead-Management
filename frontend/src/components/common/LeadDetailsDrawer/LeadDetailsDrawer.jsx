@@ -21,6 +21,7 @@ import {
   Sparkles,
   Lock,
   Unlock,
+  Copy,
 } from "lucide-react";
 import "./LeadDetailsDrawer.css";
 import {
@@ -402,6 +403,11 @@ const LeadDetailsDrawer = ({
                 <span className={getStatusBadgeClass(status)}>
                   {status}
                 </span>
+                {(lead?.is_duplicate || (lead?.received_count && Number(lead.received_count) > 1)) && (
+                  <span className="duplicate-badge-pill" title={`Duplicate lead enquiry - submitted ${lead?.received_count || 2} times`}>
+                    <Copy size={12} /> DUPLICATE ({lead?.received_count || 2}x)
+                  </span>
+                )}
                 {isEnrolled && (
                   <span className="enrolled-badge-pill" title="Student is officially enrolled. Core details are locked.">
                     <Lock size={12} /> Enrolled & Locked

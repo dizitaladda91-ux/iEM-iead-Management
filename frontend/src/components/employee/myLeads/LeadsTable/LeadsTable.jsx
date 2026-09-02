@@ -4,6 +4,7 @@ import {
   MessageCircle,
   Eye,
   CalendarPlus,
+  Copy,
 } from "lucide-react";
 import { useState } from "react";
 import LeadDetailsDrawer from "../../../common/LeadDetailsDrawer/LeadDetailsDrawer";
@@ -88,7 +89,28 @@ const LeadsTable = ({
                         .toUpperCase() || "L"}
                     </div>
                     <div>
-                      <h5>{lead.full_name}</h5>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                        <h5>{lead.full_name}</h5>
+                        {(lead.is_duplicate || (lead.received_count && Number(lead.received_count) > 1)) && (
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              fontWeight: "700",
+                              background: "#fef3c7",
+                              color: "#92400e",
+                              border: "1px solid #fcd34d",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
+                            }}
+                            title={`Duplicate Lead (${lead.received_count || 2} submissions)`}
+                          >
+                            <Copy size={10} /> DUPLICATE {lead.received_count > 1 ? `(${lead.received_count}x)` : ""}
+                          </span>
+                        )}
+                      </div>
                       <span>{lead.email || "-"}</span>
                     </div>
                   </div>

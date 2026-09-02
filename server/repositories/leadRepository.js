@@ -467,6 +467,11 @@ export const getLeadsRepository = async (filters) => {
   const query = `
     SELECT
       l.*,
+      (l.is_duplicate = TRUE OR COALESCE(l.received_count, 1) > 1 OR (
+        SELECT COUNT(*) FROM leads l2 
+        WHERE l2.is_deleted = FALSE 
+          AND (l2.mobile = l.mobile OR (l.email IS NOT NULL AND l.email != '' AND l2.email = l.email))
+      ) > 1) AS is_duplicate,
       e.full_name AS assigned_employee,
       cp.campaign_name AS course_name
 
@@ -644,6 +649,11 @@ export const getMyLeadsRepository = async (filters) => {
   const query = `
     SELECT
       l.*,
+      (l.is_duplicate = TRUE OR COALESCE(l.received_count, 1) > 1 OR (
+        SELECT COUNT(*) FROM leads l2 
+        WHERE l2.is_deleted = FALSE 
+          AND (l2.mobile = l.mobile OR (l.email IS NOT NULL AND l.email != '' AND l2.email = l.email))
+      ) > 1) AS is_duplicate,
       cp.campaign_name,
       e.full_name AS assigned_employee
 

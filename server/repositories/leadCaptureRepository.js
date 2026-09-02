@@ -142,6 +142,9 @@ export const updateExistingLeadRepository = async (
   const query = `
     UPDATE leads
     SET
+      is_duplicate = TRUE,
+      received_count = COALESCE(received_count, 1) + 1,
+      last_received_at = CURRENT_TIMESTAMP,
       campaign_id = COALESCE($1, campaign_id),
       source = COALESCE($2, source),
       interested_course = COALESCE($3, interested_course),

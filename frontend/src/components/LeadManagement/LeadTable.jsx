@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Trash2,
   ArrowUpDown,
+  Copy,
 } from "lucide-react";
 const STATUS_CONFIG = {
   INTERESTED: {
@@ -575,13 +576,27 @@ const LeadTable = ({
 
         <td className="px-4 py-4">
 
-          <div>
+          <div className="flex flex-col gap-1">
 
-            <p className="font-medium text-slate-800">
+            <div className="flex items-center gap-2 flex-wrap">
 
-              {lead.full_name}
+              <p className="font-medium text-slate-800">
 
-            </p>
+                {lead.full_name}
+
+              </p>
+
+              {(lead.is_duplicate || (lead.received_count && Number(lead.received_count) > 1)) && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-300 shadow-xs"
+                  title={`Duplicate Enquiry - Received ${lead.received_count || 2} times`}
+                >
+                  <Copy size={11} className="text-amber-600" />
+                  DUPLICATE {lead.received_count > 1 ? `(${lead.received_count}x)` : ""}
+                </span>
+              )}
+
+            </div>
 
             <p className="text-xs text-slate-500">
 
